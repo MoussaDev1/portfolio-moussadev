@@ -1,0 +1,144 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "slug": "exemple-ecommerce",
+      "title": "Site E-commerce Full-Stack",
+      "shortDescription": "Application e-commerce complète avec gestion des utilisateurs, panier et paiement",
+      "fullDescription": "Développement d'une application e-commerce moderne avec Next.js et TypeScript. Intégration d'un système de paiement sécurisé, gestion avancée des stocks, interface d'administration et expérience utilisateur optimisée.",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "PostgreSQL",
+        "Stripe",
+        "Tailwind CSS",
+        "Prisma"
+      ],
+      "category": "Web Development",
+      "status": "completed",
+      "featured": true,
+      "images": {
+        "thumbnail": "/images/projects/pxfuel.jpg",
+        "gallery": []
+      },
+      "links": {
+        "demo": "https://demo-ecommerce.vercel.app",
+        "github": "https://github.com/moussadev/ecommerce-app",
+        "case_study": null
+      },
+      "highlights": [
+        "Interface utilisateur responsive et moderne",
+        "Système de paiement sécurisé avec Stripe",
+        "Panel d'administration complet",
+        "Optimisation SEO avancée"
+      ],
+      "challenges": "La principale difficulté était d'assurer la sécurité des transactions tout en maintenant une expérience utilisateur fluide. J'ai résolu cela en implémentant une architecture robuste avec validation côté client et serveur.",
+      "learnings": "Ce projet m'a permis d'approfondir mes connaissances en sécurité web, architecture full-stack et optimisation des performances.",
+      "duration": "3 mois",
+      "team_size": 1,
+      "date_completed": "2024-08-15",
+      "date_created": "2024-05-15"
+    },
+    {
+      "id": "2",
+      "slug": "dashboard-analytics",
+      "title": "Dashboard Analytics en Temps Réel",
+      "shortDescription": "Interface de visualisation de données avec graphiques interactifs et mises à jour temps réel",
+      "fullDescription": "Création d'un dashboard moderne pour visualiser des métriques business en temps réel. Intégration de WebSockets pour les mises à jour live, graphiques interactifs et système d'alertes personnalisables.",
+      "technologies": [
+        "React",
+        "TypeScript",
+        "D3.js",
+        "WebSocket",
+        "Node.js",
+        "MongoDB"
+      ],
+      "category": "Data Visualization",
+      "status": "completed",
+      "featured": true,
+      "images": {
+        "thumbnail": "/images/projects/pxfuel.jpg",
+        "gallery": []
+      },
+      "links": {
+        "demo": "https://analytics-dashboard-demo.vercel.app",
+        "github": "https://github.com/moussadev/analytics-dashboard",
+        "case_study": null
+      },
+      "highlights": [
+        "Visualisations interactives avec D3.js",
+        "Mises à jour en temps réel via WebSockets",
+        "Interface responsive et accessible",
+        "Système d'alertes personnalisables"
+      ],
+      "challenges": "Gérer les performances avec de gros volumes de données et maintenir la fluidité des animations était crucial.",
+      "learnings": "Approfondissement de D3.js, optimisation des performances React et architecture temps réel.",
+      "duration": "2 mois",
+      "team_size": 2,
+      "date_completed": "2024-06-30",
+      "date_created": "2024-05-01"
+    },
+    {
+      "id": "3",
+      "slug": "mobile-task-manager",
+      "title": "App Mobile de Gestion de Tâches",
+      "shortDescription": "Application mobile native pour la gestion collaborative de projets et tâches",
+      "fullDescription": "Développement d'une application mobile native pour la gestion de tâches avec fonctionnalités collaboratives, notifications push et synchronisation cross-platform.",
+      "technologies": [
+        "React Native",
+        "TypeScript",
+        "Firebase",
+        "Redux Toolkit",
+        "Expo"
+      ],
+      "category": "Mobile Development",
+      "status": "in_progress",
+      "featured": true,
+      "images": {
+        "thumbnail": "/images/projects/one-piece-manga.jpg",
+        "gallery": []
+      },
+      "links": {
+        "demo": null,
+        "github": "https://github.com/moussadev/task-manager-mobile",
+        "case_study": null
+      },
+      "highlights": [
+        "Interface native iOS et Android",
+        "Collaboration temps réel",
+        "Notifications push intelligentes",
+        "Mode hors-ligne avec synchronisation"
+      ],
+      "challenges": "Assurer une synchronisation fiable entre appareils et gérer les conflits de données.",
+      "learnings": "Maîtrise de React Native, architecture mobile et gestion d'état complexe.",
+      "duration": "En cours (4 mois prévus)",
+      "team_size": 1,
+      "date_completed": null,
+      "date_created": "2024-07-01"
+    }
+  ],
+  "categories": [
+    "Web Development",
+    "Mobile Development",
+    "Data Visualization",
+    "Backend Development",
+    "DevOps",
+    "UI/UX Design"
+  ],
+  "technologies": [
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Next.js",
+    "React Native",
+    "Node.js",
+    "Python",
+    "PostgreSQL",
+    "MongoDB",
+    "Firebase",
+    "AWS",
+    "Docker",
+    "Tailwind CSS",
+    "D3.js"
+  ]
+}
