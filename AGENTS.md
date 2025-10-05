@@ -154,20 +154,21 @@ Quand l’utilisateur demande OU quand tu commences une grosse feature OU quand 
 
 **9) Nettoyage et fichiers inutiles**
 
-- [ ] Détecter les éléments créés mais jamais importés/utilisés.
-- [ ] Identifier scripts non intégrés au workflow (ex : pas dans package.json).
-- [ ] Repérer documentation redondante (ex : plusieurs guides sur même sujet).
-- [ ] Vérifier imports fantômes ou références à fichiers supprimés.
-- [ ] Chercher fichiers de cache ou temporaires (ex : .next, node_modules exclus).
-- [ ] Analyser taille des fichiers pour détecter doublons ou contenus volumineux inutiles.
+- [ ] Détecter les éléments créés mais jamais importés/utilisés (fonctions, classes, composants, assets…).
+- [ ] Identifier les scripts non intégrés au workflow officiel (ex : non référencés dans package.json, pyproject.toml, Makefile, etc.).
+- [ ] Repérer la documentation redondante ou obsolète (guides dupliqués, README multiples).
+- [ ] Vérifier les imports fantômes ou références vers des fichiers supprimés.
+- [ ] Rechercher les répertoires de build/cache temporaires selon la stack (ex : `.next`, `.nuxt`, `.pytest_cache`, `__pycache__`, `dist`, `build`, `out`…).
+- [ ] Analyser la taille des fichiers/répertoires pour détecter doublons ou contenus volumineux inutiles (vidéos, images non utilisées, gros dumps).
 
-**⚠️ Actions de nettoyage :**
+**⚠️ Actions de nettoyage**
 
-- Toujours demander confirmation avant suppression
-- Supprimer composants inutilisés ET leurs imports
-- Consolider documentation redondante en guides unifiés
-- Nettoyer cache TypeScript/Next.js après suppression
-- Vérifier build réussi post-nettoyage
+- Toujours demander confirmation avant suppression et **créer un commit ou backup préalable**.
+- Supprimer les composants, fonctions et fichiers inutilisés **ainsi que leurs imports/références**.
+- Consolider ou fusionner les documents redondants en un guide unique, et mettre à jour les liens internes/externes.
+- Nettoyer les caches et répertoires temporaires spécifiques à la stack (ex : `rm -rf .next dist build __pycache__`).
+- Vérifier que le projet **compile/build/exécute sans erreur après nettoyage**.
+- Si suppression importante, lancer les **tests automatisés** pour s’assurer qu’aucune dépendance implicite n’a été cassée.
 
 ---
 
