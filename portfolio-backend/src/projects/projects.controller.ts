@@ -26,7 +26,8 @@ export class ProjectsController {
 
   @Get()
   findAll(@Query('featured') featured?: string) {
-    const featuredBool = featured === 'true' ? true : featured === 'false' ? false : undefined;
+    const featuredBool =
+      featured === 'true' ? true : featured === 'false' ? false : undefined;
     return this.projectsService.findAll(featuredBool);
   }
 

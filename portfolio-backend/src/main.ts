@@ -4,13 +4,15 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Validation globale
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   // CORS pour permettre les requÃªtes depuis le frontend
   app.enableCors({
@@ -23,7 +25,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  
-  console.log(`íº€ Backend API running on http://localhost:${port}/api`);
+
+  console.log(`ï¿½ï¿½ï¿½ Backend API running on http://localhost:${port}/api`);
 }
 bootstrap();

@@ -29,7 +29,7 @@ model Project {
   caseStudyUrl String?
   
   // Métadonnées
-  highlights   String? // JSON stringified array
+  highlights   String[] // Array direct
   challenges   String?
   learnings    String?
   duration     String?
@@ -60,11 +60,12 @@ model Zone {
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
-  quests      Quest[]
+  quests      ZoneQuest[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  @@unique([projectId, order])
   @@map("zones")
 }
 
@@ -84,16 +85,17 @@ model Floor {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  @@unique([projectId, order])
   @@map("floors")
 }
 
 // Quêtes (pour Zones)
-model Quest {
+model ZoneQuest {
   id               String      @id @default(cuid())
   title            String
   userStory        String
-  definitionOfDone String? // JSON stringified array
-  manualTests      String? // JSON stringified array
+  definitionOfDone String[] // Array direct
+  manualTests      String[] // Array direct
   techDebt         String?
   status           QuestStatus @default(TODO) // TODO | IN_PROGRESS | TESTING | DONE
   priority         Priority    @default(MEDIUM) // LOW | MEDIUM | HIGH | CRITICAL
@@ -107,7 +109,10 @@ model Quest {
   updatedAt   DateTime @updatedAt
   completedAt DateTime?
   
-  @@map("quests")
+  @@index([zoneId])
+  @@index([status])
+  @@index([priority])
+  @@map("zone_quests")
 }
 
 // Floor Quêtes (pour Floors)
@@ -115,8 +120,8 @@ model FloorQuest {
   id               String      @id @default(cuid())
   title            String
   userStory        String
-  definitionOfDone String? // JSON stringified array
-  manualTests      String? // JSON stringified array
+  definitionOfDone String[] // Array direct
+  manualTests      String[] // Array direct
   techDebt         String?
   status           QuestStatus @default(TODO)
   priority         Priority    @default(MEDIUM)
@@ -130,6 +135,9 @@ model FloorQuest {
   updatedAt   DateTime @updatedAt
   completedAt DateTime?
   
+  @@index([floorId])
+  @@index([status])
+  @@index([priority])
   @@map("floor_quests")
 }
 
