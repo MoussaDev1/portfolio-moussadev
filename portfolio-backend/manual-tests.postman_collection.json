@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "Floor, Zone, and Quest API Tests",
+    "description": "Collection of manual test cases for Floor, Zone, and Quest systems.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Zone Tests",
+      "item": [
+        {
+          "name": "Create Zone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Test Zone\", \"description\": \"A test zone\" }"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/zones",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "zones"]
+            }
+          }
+        },
+        {
+          "name": "Get All Zones",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3001/api/zones",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "zones"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Floor Tests",
+      "item": [
+        {
+          "name": "Create Floor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Test Floor\", \"level\": 1 }"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/floors",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "floors"]
+            }
+          }
+        },
+        {
+          "name": "Get All Floors",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3001/api/floors",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "floors"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest Tests",
+      "item": [
+        {
+          "name": "Create Quest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Test Quest\", \"zoneId\": 1, \"floorId\": 1 }"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/quests",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "quests"]
+            }
+          }
+        },
+        {
+          "name": "Get All Quests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3001/api/quests",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "quests"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Project Tests",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3001/api/projects",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "projects"]
+            }
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Test Project\", \"type\": \"ZONE_SYSTEM\" }"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/projects",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "projects"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

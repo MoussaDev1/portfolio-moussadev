@@ -30,8 +30,8 @@ model Project {
   
   // Métadonnées
   highlights   String[] // Array direct
-  challenges   String?
-  learnings    String?
+  challenges   String[] // Array direct
+  learnings    String[] // Array direct
   duration     String?
   teamSize     Int?
   

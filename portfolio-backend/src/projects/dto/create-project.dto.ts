@@ -56,16 +56,19 @@ export class CreateProjectDto {
   caseStudyUrl?: string;
 
   @IsOptional()
-  @IsString()
-  highlights?: string; // JSON stringified array
+  @IsArray()
+  @IsString({ each: true })
+  highlights?: string[];
 
   @IsOptional()
-  @IsString()
-  challenges?: string;
+  @IsArray()
+  @IsString({ each: true })
+  challenges?: string[];
 
   @IsOptional()
-  @IsString()
-  learnings?: string;
+  @IsArray()
+  @IsString({ each: true })
+  learnings?: string[];
 
   @IsOptional()
   @IsString()

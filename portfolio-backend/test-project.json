@@ -1,0 +1,9 @@
+{
+  "slug": "test-project-mvp",
+  "title": "Test Project MVP",
+  "description": "Testing the MVP with array types",
+  "highlights": ["Feature A completed", "Performance optimized"],
+  "challenges": ["Database migration", "Type validation"],
+  "learnings": ["Prisma arrays", "NestJS validation"],
+  "type": "ZONE_SYSTEM"
+}
