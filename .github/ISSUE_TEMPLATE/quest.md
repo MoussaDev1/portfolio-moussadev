@@ -1,28 +1,67 @@
 ---
-name: Quest
-about: Décrire une quête (tâche / user story) pour une zone du projet
-title: "[Zone X] Nom de la quête"
-labels: quest
+name: Floor
+about: Auditer, comprendre et améliorer un étage (feature du MVP IA)
+title: "[Floor X] [Quest Num de Quest et Nom de Quest ] Nom de l’étage"
+labels: floor
 assignees: ""
 ---
 
-## 🎯 User Story
+## 🎯 Objectif (Boss à vaincre)
 
-En tant que **[type d’utilisateur ou dev]**, je veux **[fonctionnalité ou objectif]** afin de **[valeur ajoutée / but]**.
+En tant que **mainteneur**, je veux **auditer, comprendre et fiabiliser [feature]** afin que le code généré par l’IA soit **sécurisé, maintenable et compris**.
 
 ---
 
-## ✅ Definition of Done (DoD) — Base
+## 🧭 Audit initial
 
-- [ ] Code pushé sur GitHub
-- [ ] Tests manuels réalisés (fonctionnalité vérifiée)
-- [ ] L’app compile et s’exécute sans crash
-- [ ] README mis à jour si nécessaire
-- [ ] Aucun bug critique connu
+- **Description du MVP existant :**
 
-### 🔹DoD spécifique à cette quête
+  > Exemple : Auth NestJS avec login/register, JWT hardcodé.
 
-- [ ] ...
+- **Prompts IA utilisés pour générer ce MVP :**
+
+  > Exemple : “Génère une app NestJS avec Prisma et JWT login/register”
+
+- **Points forts identifiés :**
+
+  - [ ] ...
+  - [ ] ...
+
+- **Points douteux / à vérifier :**
+  - [ ] ...
+  - [ ] ...
+
+---
+
+## 🗂️ Quêtes (tasks de review & amélioration)
+
+| Quête | Statut | Notes        |
+| ----- | ------ | ------------ |
+| ...   | ⬜     | Prompt : ... |
+| ...   | ⬜     |              |
+
+---
+
+## 🧠 Apprentissage déclenché
+
+- **Concepts appris pendant ce floor :**
+
+  - ...
+  - ...
+
+- **Prompts IA utilisés pour comprendre / corriger :**
+  - ...
+  - ...
+
+---
+
+## ✅ Definition of Done (DoD)
+
+- [ ] Fonctionnalité testée manuellement et opérationnelle
+- [ ] Secrets / configs sensibles sécurisées si applicable
+- [ ] Code audité et compris (Feynman Test OK)
+- [ ] Documentation de ce floor ajoutée (`/docs/nom-floor.md`)
+- [ ] Debt technique listée ci-dessous
 
 ---
 
@@ -34,6 +73,15 @@ En tant que **[type d’utilisateur ou dev]**, je veux **[fonctionnalité ou obj
 
 ---
 
-## ⚠️ Dette technique / améliorations à noter
+## ⚠️ Dette technique / améliorations futures
 
 - [ ] ...
+- [ ] ...
+
+---
+
+## 🏆 XP & Difficulté
+
+- Difficulté : 💀 (1-5)
+- XP gagnée : …
+- Temps passé : …
