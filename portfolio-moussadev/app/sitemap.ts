@@ -1,18 +1,23 @@
 import { MetadataRoute } from "next";
-import { getAllProjects } from "@/lib/projects";
+import { apiClient } from "@/lib/api";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await getAllProjects();
   const baseUrl = "https://moussadev.com";
+  let projectEntries: MetadataRoute.Sitemap = [];
 
-  const projectEntries: MetadataRoute.Sitemap = projects.map((project) => ({
-    url: `${baseUrl}/projects/${project.slug}`,
-    lastModified: project.date_completed
-      ? new Date(project.date_completed)
-      : new Date(project.date_created),
-    changeFrequency: "monthly",
-    priority: project.featured ? 0.8 : 0.6,
-  }));
+  try {
+    const projects = await apiClient.getProjects();
+    projectEntries = projects.map((project) => ({
+      url: `${baseUrl}/projects/${project.slug}`,
+      lastModified: project.dateCompleted
+        ? new Date(project.dateCompleted)
+        : new Date(project.createdAt),
+      changeFrequency: "monthly" as const,
+      priority: project.featured ? 0.8 : 0.6,
+    }));
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+  }
 
   return [
     {

@@ -18,10 +18,6 @@ En tant que **mainteneur**, je veux **auditer, comprendre et fiabiliser [feature
 
   > Exemple : Auth NestJS avec login/register, JWT hardcodé.
 
-- **Prompts IA utilisés pour générer ce MVP :**
-
-  > Exemple : “Génère une app NestJS avec Prisma et JWT login/register”
-
 - **Points forts identifiés :**
 
   - [ ] ...
@@ -33,23 +29,10 @@ En tant que **mainteneur**, je veux **auditer, comprendre et fiabiliser [feature
 
 ---
 
-## 🗂️ Quêtes (tasks de review & amélioration)
-
-| Quête | Statut | Notes        |
-| ----- | ------ | ------------ |
-| ...   | ⬜     | Prompt : ... |
-| ...   | ⬜     |              |
-
----
-
 ## 🧠 Apprentissage déclenché
 
 - **Concepts appris pendant ce floor :**
 
-  - ...
-  - ...
-
-- **Prompts IA utilisés pour comprendre / corriger :**
   - ...
   - ...
 

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/public/Header";
+import Footer from "@/components/public/Footer";
 import { useProjects } from "@/lib/hooks";
 import { Project, ProjectType } from "@/types/api";
-import ProjectForm from "./components/ProjectForm";
-import ProjectsList from "./components/ProjectsList";
-import ProjectDetails from "./components/ProjectDetails";
+import ProjectForm from "@/components/admin/projects/ProjectForm";
+import ProjectsList from "@/components/admin/projects/ProjectsList";
+import ProjectDetails from "@/components/admin/projects/ProjectDetails";
 import TechRadarAdmin from "./tech-radar/page";
 
 export default function AdminDashboard() {
@@ -163,13 +163,18 @@ export default function AdminDashboard() {
                 setSelectedProject(project);
                 setActiveTab("details");
               }}
+              onEditProject={(project: Project) => {
+                setSelectedProject(project);
+                setActiveTab("create");
+              }}
               onRefresh={refetch}
             />
           )}
 
           {activeTab === "create" && (
             <ProjectForm
-              onProjectCreated={handleProjectCreated}
+              initialProject={selectedProject}
+              onProjectSaved={handleProjectCreated}
               onCancel={() => {
                 setActiveTab("list");
               }}

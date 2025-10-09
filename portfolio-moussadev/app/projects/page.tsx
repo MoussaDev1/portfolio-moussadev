@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ProjectCard from "@/components/ProjectCard";
+import Header from "@/components/public/Header";
+import Footer from "@/components/public/Footer";
+import ProjectCard from "@/components/public/ProjectCard";
 import { useProjects } from "@/lib/hooks";
 import { Project } from "@/types/api";
 

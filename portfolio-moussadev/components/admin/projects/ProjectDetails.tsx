@@ -110,8 +110,8 @@ export default function ProjectDetails({
   const zones = project.zones || [];
   const floors = project.floors || [];
   const allQuests = [
-    ...(zones.flatMap((z: Zone) => z.quests) || []),
-    ...(floors.flatMap((f: Floor) => f.floorQuests) || []),
+    ...(zones.flatMap((z) => z.quests) || []),
+    ...(floors.flatMap((f) => f.floorQuests) || []),
   ];
 
   return (

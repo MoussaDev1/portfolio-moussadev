@@ -16,6 +16,19 @@ export enum QuestStatus {
   IN_PROGRESS = "IN_PROGRESS",
   TESTING = "TESTING",
   DONE = "DONE",
+  BLOCKED = "BLOCKED",
+}
+
+export enum ZoneStatus {
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+}
+
+export enum FloorStatus {
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
 }
 
 export enum Priority {
@@ -40,8 +53,17 @@ export interface Zone {
   name: string;
   description?: string;
   order: number;
+  status: ZoneStatus;
   projectId: string;
+  project?: {
+    id: string;
+    title: string;
+    type: ProjectType;
+  };
   quests: Quest[];
+  _count?: {
+    quests: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -62,8 +84,8 @@ export interface Quest {
   title: string;
   userStory: string;
   acceptanceCriteria?: string;
-  definitionOfDone?: string;
-  manualTests?: string;
+  definitionOfDone?: string[];
+  manualTests?: string[];
   technicalDebt?: string;
   status: QuestStatus;
   priority: Priority;
@@ -81,8 +103,8 @@ export interface FloorQuest {
   title: string;
   userStory: string;
   acceptanceCriteria?: string;
-  definitionOfDone?: string;
-  manualTests?: string;
+  definitionOfDone?: string[];
+  manualTests?: string[];
   technicalDebt?: string;
   status: QuestStatus;
   priority: Priority;
@@ -160,6 +182,15 @@ export interface CreateZoneDto {
   name: string;
   description?: string;
   order: number;
+  status?: ZoneStatus;
+  projectId: string;
+}
+
+export interface UpdateZoneDto {
+  name?: string;
+  description?: string;
+  order?: number;
+  status?: ZoneStatus;
 }
 
 export interface CreateFloorDto {
@@ -200,59 +231,6 @@ export interface ProjectStats {
   completedQuests: number;
   progressPercentage: number;
   totalPomodoroTime: number;
-}
-
-// DTOs pour les opérations CRUD
-export interface CreateProjectDto {
-  slug: string;
-  title: string;
-  description: string;
-  fullDescription?: string;
-  type?: ProjectType;
-  status?: ProjectStatus;
-  technologies?: string;
-  githubUrl?: string;
-  demoUrl?: string;
-  imageUrl?: string;
-  featured?: boolean;
-}
-
-export interface UpdateProjectDto {
-  slug?: string;
-  title?: string;
-  description?: string;
-  fullDescription?: string;
-  type?: ProjectType;
-  status?: ProjectStatus;
-  technologies?: string;
-  githubUrl?: string;
-  demoUrl?: string;
-  imageUrl?: string;
-  featured?: boolean;
-}
-
-export interface CreateZoneDto {
-  name: string;
-  description?: string;
-  order: number;
-}
-
-export interface CreateFloorDto {
-  name: string;
-  description?: string;
-  order: number;
-}
-
-export interface CreateQuestDto {
-  title: string;
-  userStory: string;
-  acceptanceCriteria?: string;
-  definitionOfDone?: string;
-  manualTests?: string;
-  technicalDebt?: string;
-  priority?: Priority;
-  estimatedPomodoros?: number;
-  order: number;
 }
 
 // Legacy types pour compatibilité (à supprimer plus tard)

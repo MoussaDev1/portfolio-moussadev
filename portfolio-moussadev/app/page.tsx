@@ -1,11 +1,13 @@
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ProjectCard from "@/components/ProjectCard";
-import { getFeaturedProjects } from "@/lib/projects";
+import Header from "@/components/public/Header";
+import Footer from "@/components/public/Footer";
+import ProjectCard from "@/components/public/ProjectCard";
+import { Project } from "@/types/api";
+// import { getFeaturedProjects } from "@/lib/projects";
 
 export default async function Home() {
-  const featuredProjects = await getFeaturedProjects();
+  // const featuredProjects = await getFeaturedProjects();
+  const featuredProjects: Project[] = []; // Placeholder temporaire - aucun projet pour l'instant
 
   return (
     <div className="min-h-screen bg-background">

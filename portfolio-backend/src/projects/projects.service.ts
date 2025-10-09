@@ -10,16 +10,15 @@ export class ProjectsService {
   async create(createProjectDto: CreateProjectDto) {
     const { technologyIds, ...projectData } = createProjectDto;
 
+    // Pour l'instant, on ignore les technologies jusqu'à ce qu'on les implémente
     const project = await this.prisma.project.create({
       data: {
         ...projectData,
-        ...(technologyIds && {
-          technologies: {
-            create: technologyIds.map((techId) => ({
-              technologyId: techId,
-            })),
-          },
-        }),
+        // Fournir des arrays vides par défaut pour les champs obligatoires
+        highlights: projectData.highlights || [],
+        challenges: projectData.challenges || [],
+        learnings: projectData.learnings || [],
+        // TODO: Implémenter les relations technologies plus tard
       },
       include: {
         technologies: {

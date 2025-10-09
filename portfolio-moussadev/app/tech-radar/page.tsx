@@ -93,9 +93,9 @@ export default function TechRadarPage() {
             🧭 Mon Tech Radar
           </h1>
           <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
-            Découvrez les technologies que j'explore, maîtrise et utilise dans
-            mes projets. Un aperçu de mon évolution technique et de mes domaines
-            d'expertise.
+            Découvrez les technologies que j&apos;explore, maîtrise et utilise
+            dans mes projets. Un aperçu de mon évolution technique et de mes
+            domaines d&apos;expertise.
           </p>
         </div>
 

@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { Project, ProjectType, ProjectStatus } from "@/types/api";
-import { useMutation } from "@/lib/hooks";
+import { useMutation } from "@/lib/hooks/useMutation";
 import { apiClient } from "@/lib/api";
 
 interface ProjectsListProps {
   projects: Project[];
   onSelectProject: (project: Project) => void;
+  onEditProject: (project: Project) => void;
   onRefresh: () => void;
 }
 
 export default function ProjectsList({
   projects,
   onSelectProject,
+  onEditProject,
   onRefresh,
 }: ProjectsListProps) {
   const [filter, setFilter] = useState<"all" | ProjectType | ProjectStatus>(
@@ -22,7 +24,12 @@ export default function ProjectsList({
   const [searchTerm, setSearchTerm] = useState("");
 
   const { mutate: deleteProject, loading: deleting } = useMutation(
-    (id: string) => apiClient.deleteProject(id)
+    (id: string) => apiClient.deleteProject(id),
+    {
+      onSuccess: () => {
+        onRefresh(); // Refresh automatique après suppression
+      },
+    }
   );
 
   const filteredProjects = projects.filter((project) => {
@@ -44,10 +51,8 @@ export default function ProjectsList({
         `Êtes-vous sûr de vouloir supprimer le projet "${project.title}" ?`
       )
     ) {
-      const result = await deleteProject(project.id);
-      if (result) {
-        onRefresh();
-      }
+      await deleteProject(project.id);
+      // Le refresh est automatique via onSuccess
     }
   };
 
@@ -169,6 +174,12 @@ export default function ProjectsList({
                     className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm"
                   >
                     📝 Gérer
+                  </button>
+                  <button
+                    onClick={() => onEditProject(project)}
+                    className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 rounded text-sm"
+                  >
+                    ✏️ Modifier
                   </button>
                   <button
                     onClick={() => handleDelete(project)}

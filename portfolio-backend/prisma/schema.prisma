@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,242 +7,200 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Projets (Zone System vs Floor System)
 model Project {
-  id          String        @id @default(cuid())
-  slug        String        @unique
-  title       String
-  description String
-  fullDescription String?
-  type        ProjectType   @default(ZONE_SYSTEM) // ZONE_SYSTEM | FLOOR_SYSTEM
-  status      ProjectStatus @default(PLANNING)    // PLANNING | ACTIVE | COMPLETED | PAUSED
-  featured    Boolean       @default(false)
-  category    String?
-  
-  // Images et liens
-  thumbnailUrl String?
-  demoUrl      String?
-  githubUrl    String?
-  caseStudyUrl String?
-  
-  // Métadonnées
-  highlights   String[] // Array direct
-  challenges   String[] // Array direct
-  learnings    String[] // Array direct
-  duration     String?
-  teamSize     Int?
-  
-  // Relations
-  zones         Zone[]
-  floors        Floor[]
-  technologies  ProjectTechnology[]
-  posts         ProjectPost[]
+  id               String              @id @default(cuid())
+  slug             String              @unique
+  title            String
+  description      String
+  fullDescription  String?
+  type             ProjectType         @default(ZONE_SYSTEM)
+  status           ProjectStatus       @default(PLANNING)
+  featured         Boolean             @default(false)
+  category         String?
+  thumbnailUrl     String?
+  demoUrl          String?
+  githubUrl        String?
+  caseStudyUrl     String?
+  highlights       String[]
+  challenges       String[]
+  learnings        String[]
+  duration         String?
+  teamSize         Int?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  dateCompleted    DateTime?
+  floors           Floor[]
   pomodoroSessions PomodoroSession[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  dateCompleted DateTime?
-  
+  posts            ProjectPost[]
+  technologies     ProjectTechnology[]
+  zones            Zone[]
+
   @@map("projects")
 }
 
-// Zones (pour Zone System)
 model Zone {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
   description String?
   order       Int
-  status      ZoneStatus @default(TODO) // TODO | IN_PROGRESS | COMPLETED
-  
+  status      ZoneStatus  @default(TODO)
   projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   quests      ZoneQuest[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   @@unique([projectId, order])
   @@map("zones")
 }
 
-// Floors (pour Floor System)
 model Floor {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   order       Int
-  status      FloorStatus @default(TODO) // TODO | IN_PROGRESS | COMPLETED
-  
+  status      FloorStatus  @default(TODO)
   projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   floorQuests FloorQuest[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   @@unique([projectId, order])
   @@map("floors")
 }
 
-// Quêtes (pour Zones)
 model ZoneQuest {
   id               String      @id @default(cuid())
   title            String
   userStory        String
-  definitionOfDone String[] // Array direct
-  manualTests      String[] // Array direct
+  definitionOfDone String[]
+  manualTests      String[]
   techDebt         String?
-  status           QuestStatus @default(TODO) // TODO | IN_PROGRESS | TESTING | DONE
-  priority         Priority    @default(MEDIUM) // LOW | MEDIUM | HIGH | CRITICAL
+  status           QuestStatus @default(TODO)
+  priority         Priority    @default(MEDIUM)
   estimatedHours   Int?
   actualHours      Int?
-  
-  zoneId      String
-  zone        Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  completedAt DateTime?
-  
+  zoneId           String
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  completedAt      DateTime?
+  zone             Zone        @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
   @@index([zoneId])
   @@index([status])
   @@index([priority])
   @@map("zone_quests")
 }
 
-// Floor Quêtes (pour Floors)
 model FloorQuest {
   id               String      @id @default(cuid())
   title            String
   userStory        String
-  definitionOfDone String[] // Array direct
-  manualTests      String[] // Array direct
+  definitionOfDone String[]
+  manualTests      String[]
   techDebt         String?
   status           QuestStatus @default(TODO)
   priority         Priority    @default(MEDIUM)
   estimatedHours   Int?
   actualHours      Int?
-  
-  floorId     String
-  floor       Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  completedAt DateTime?
-  
+  floorId          String
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  completedAt      DateTime?
+  floor            Floor       @relation(fields: [floorId], references: [id], onDelete: Cascade)
+
   @@index([floorId])
   @@index([status])
   @@index([priority])
   @@map("floor_quests")
 }
 
-// Technologies (Tech Radar)
 model Technology {
-  id          String       @id @default(cuid())
-  name        String       @unique
-  slug        String       @unique
-  category    TechCategory // LANGUAGES | FRAMEWORKS | TOOLS | PLATFORMS
-  status      TechStatus   // MASTERED | LEARNING | TO_REVIEW | EXPLORING
+  id          String              @id @default(cuid())
+  name        String              @unique
+  slug        String              @unique
+  category    TechCategory
+  status      TechStatus
   description String?
   iconUrl     String?
   websiteUrl  String?
-  
-  // Relations
-  projects    ProjectTechnology[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
   posts       PostTechnology[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  projects    ProjectTechnology[]
+
   @@map("technologies")
 }
 
-// Blog Posts
 model Post {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  content     String   // Markdown
-  excerpt     String?
-  published   Boolean  @default(false)
-  featured    Boolean  @default(false)
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  title        String
+  content      String
+  excerpt      String?
+  published    Boolean          @default(false)
+  featured     Boolean          @default(false)
   thumbnailUrl String?
-  readTime    Int?     // en minutes
-  views       Int      @default(0)
-  
-  // Relations
-  projects     ProjectPost[]
-  technologies PostTechnology[]
+  readTime     Int?
+  views        Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  publishedAt  DateTime?
   categories   PostCategory[]
   tags         PostTag[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  publishedAt DateTime?
-  
+  technologies PostTechnology[]
+  projects     ProjectPost[]
+
   @@map("posts")
 }
 
-// Catégories de blog
 model Category {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
   description String?
-  color       String? // Couleur hex
-  
+  color       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   posts       PostCategory[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
   @@map("categories")
 }
 
-// Tags de blog
 model Tag {
-  id    String @id @default(cuid())
-  name  String @unique
-  slug  String @unique
-  color String? // Couleur hex
-  
-  posts PostTag[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  color     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  posts     PostTag[]
+
   @@map("tags")
 }
 
-// Sessions Pomodoro
 model PomodoroSession {
   id          String      @id @default(cuid())
-  duration    Int         // en minutes
-  type        SessionType // WORK | SHORT_BREAK | LONG_BREAK
+  duration    Int
+  type        SessionType
   completed   Boolean     @default(false)
   notes       String?
-  
   projectId   String?
-  project     Project?    @relation(fields: [projectId], references: [id])
-  
-  createdAt   DateTime @default(now())
+  createdAt   DateTime    @default(now())
   completedAt DateTime?
-  
+  project     Project?    @relation(fields: [projectId], references: [id])
+
   @@map("pomodoro_sessions")
 }
 
-// Tables de liaison
 model ProjectTechnology {
   projectId    String
   technologyId String
-  
+  createdAt    DateTime   @default(now())
   project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
-  
-  createdAt    DateTime @default(now())
-  
+
   @@id([projectId, technologyId])
   @@map("project_technologies")
 }
@@ -253,12 +208,10 @@ model ProjectTechnology {
 model ProjectPost {
   projectId String
   postId    String
-  
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
   createdAt DateTime @default(now())
-  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   @@id([projectId, postId])
   @@map("project_posts")
 }
@@ -266,12 +219,10 @@ model ProjectPost {
 model PostTechnology {
   postId       String
   technologyId String
-  
+  createdAt    DateTime   @default(now())
   post         Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
   technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
-  
-  createdAt    DateTime @default(now())
-  
+
   @@id([postId, technologyId])
   @@map("post_technologies")
 }
@@ -279,25 +230,21 @@ model PostTechnology {
 model PostCategory {
   postId     String
   categoryId String
-  
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
   createdAt  DateTime @default(now())
-  
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@id([postId, categoryId])
   @@map("post_categories")
 }
 
 model PostTag {
-  postId String
-  tagId  String
-  
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  
+  postId    String
+  tagId     String
   createdAt DateTime @default(now())
-  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
   @@id([postId, tagId])
   @@map("post_tags")
 }

@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { getProjectBySlug, getAllProjects } from "@/lib/projects";
+import Header from "@/components/public/Header";
+import Footer from "@/components/public/Footer";
+// import { getProjectBySlug, getAllProjects } from "@/lib/projects";
 
 interface ProjectPageProps {
   params: Promise<{

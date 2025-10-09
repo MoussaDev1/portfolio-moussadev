@@ -18,6 +18,7 @@ import {
   UpdateTechnologyDto,
   TechRadarStats,
 } from "@/types/technology";
+import { CreateZoneQuestDto, UpdateZoneQuestDto } from "@/types/forms";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -94,11 +95,18 @@ class ApiClient {
     return response.data;
   }
 
-  // ========== ZONES ==========
+  // ========== ZONES (NESTED UNDER PROJECTS) ==========
 
-  async getProjectZones(projectId: string): Promise<Zone[]> {
+  async getZones(projectId: string): Promise<Zone[]> {
     const response: AxiosResponse<Zone[]> = await this.client.get(
       `/projects/${projectId}/zones`
+    );
+    return response.data;
+  }
+
+  async getZoneById(projectId: string, zoneId: string): Promise<Zone> {
+    const response: AxiosResponse<Zone> = await this.client.get(
+      `/projects/${projectId}/zones/${zoneId}`
     );
     return response.data;
   }
@@ -112,25 +120,49 @@ class ApiClient {
   }
 
   async updateZone(
+    projectId: string,
     zoneId: string,
     data: Partial<CreateZoneDto>
   ): Promise<Zone> {
-    const response: AxiosResponse<Zone> = await this.client.patch(
-      `/zones/${zoneId}`,
+    const response: AxiosResponse<Zone> = await this.client.put(
+      `/projects/${projectId}/zones/${zoneId}`,
       data
     );
     return response.data;
   }
 
-  async deleteZone(zoneId: string): Promise<void> {
-    await this.client.delete(`/zones/${zoneId}`);
+  async deleteZone(projectId: string, zoneId: string): Promise<void> {
+    await this.client.delete(`/projects/${projectId}/zones/${zoneId}`);
   }
 
-  // ========== FLOORS ==========
+  async getZoneStats(
+    projectId: string,
+    zoneId: string
+  ): Promise<{
+    totalQuests: number;
+    completedQuests: number;
+    inProgressQuests: number;
+    blockedQuests: number;
+    completionPercentage: number;
+  }> {
+    const response = await this.client.get(
+      `/projects/${projectId}/zones/${zoneId}/stats`
+    );
+    return response.data;
+  }
 
-  async getProjectFloors(projectId: string): Promise<Floor[]> {
+  // ========== FLOORS (NESTED UNDER PROJECTS) ==========
+
+  async getFloors(projectId: string): Promise<Floor[]> {
     const response: AxiosResponse<Floor[]> = await this.client.get(
       `/projects/${projectId}/floors`
+    );
+    return response.data;
+  }
+
+  async getFloorById(projectId: string, floorId: string): Promise<Floor> {
+    const response: AxiosResponse<Floor> = await this.client.get(
+      `/projects/${projectId}/floors/${floorId}`
     );
     return response.data;
   }
@@ -144,85 +176,148 @@ class ApiClient {
   }
 
   async updateFloor(
+    projectId: string,
     floorId: string,
     data: Partial<CreateFloorDto>
   ): Promise<Floor> {
-    const response: AxiosResponse<Floor> = await this.client.patch(
-      `/floors/${floorId}`,
+    const response: AxiosResponse<Floor> = await this.client.put(
+      `/projects/${projectId}/floors/${floorId}`,
       data
     );
     return response.data;
   }
 
-  async deleteFloor(floorId: string): Promise<void> {
-    await this.client.delete(`/floors/${floorId}`);
+  async deleteFloor(projectId: string, floorId: string): Promise<void> {
+    await this.client.delete(`/projects/${projectId}/floors/${floorId}`);
   }
 
-  // ========== QUESTS ==========
+  async getFloorStats(
+    projectId: string,
+    floorId: string
+  ): Promise<{
+    totalQuests: number;
+    completedQuests: number;
+    inProgressQuests: number;
+    blockedQuests: number;
+    completionPercentage: number;
+  }> {
+    const response = await this.client.get(
+      `/projects/${projectId}/floors/${floorId}/stats`
+    );
+    return response.data;
+  }
 
-  async getZoneQuests(zoneId: string): Promise<Quest[]> {
+  // ========== ZONE QUESTS (NESTED) ==========
+
+  async getZoneQuests(projectId: string, zoneId: string): Promise<Quest[]> {
     const response: AxiosResponse<Quest[]> = await this.client.get(
-      `/zones/${zoneId}/quests`
+      `/projects/${projectId}/zones/${zoneId}/quests`
     );
     return response.data;
   }
 
-  async createQuest(zoneId: string, data: CreateQuestDto): Promise<Quest> {
-    const response: AxiosResponse<Quest> = await this.client.post(
-      `/zones/${zoneId}/quests`,
-      data
-    );
-    return response.data;
-  }
-
-  async updateQuest(
-    questId: string,
-    data: Partial<CreateQuestDto>
+  async getZoneQuestById(
+    projectId: string,
+    zoneId: string,
+    questId: string
   ): Promise<Quest> {
-    const response: AxiosResponse<Quest> = await this.client.patch(
-      `/quests/${questId}`,
+    const response: AxiosResponse<Quest> = await this.client.get(
+      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`
+    );
+    return response.data;
+  }
+
+  async createZoneQuest(
+    projectId: string,
+    zoneId: string,
+    data: CreateZoneQuestDto
+  ): Promise<Quest> {
+    const response: AxiosResponse<Quest> = await this.client.post(
+      `/projects/${projectId}/zones/${zoneId}/quests`,
       data
     );
     return response.data;
   }
 
-  async deleteQuest(questId: string): Promise<void> {
-    await this.client.delete(`/quests/${questId}`);
+  async updateZoneQuest(
+    projectId: string,
+    zoneId: string,
+    questId: string,
+    data: UpdateZoneQuestDto
+  ): Promise<Quest> {
+    const response: AxiosResponse<Quest> = await this.client.put(
+      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`,
+      data
+    );
+    return response.data;
   }
 
-  // ========== FLOOR QUESTS ==========
+  async deleteZoneQuest(
+    projectId: string,
+    zoneId: string,
+    questId: string
+  ): Promise<void> {
+    await this.client.delete(
+      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`
+    );
+  }
 
-  async getFloorQuests(floorId: string): Promise<FloorQuest[]> {
+  // ========== FLOOR QUESTS (NESTED) ==========
+
+  async getFloorQuests(
+    projectId: string,
+    floorId: string
+  ): Promise<FloorQuest[]> {
     const response: AxiosResponse<FloorQuest[]> = await this.client.get(
-      `/floors/${floorId}/quests`
+      `/projects/${projectId}/floors/${floorId}/quests`
+    );
+    return response.data;
+  }
+
+  async getFloorQuestById(
+    projectId: string,
+    floorId: string,
+    questId: string
+  ): Promise<FloorQuest> {
+    const response: AxiosResponse<FloorQuest> = await this.client.get(
+      `/projects/${projectId}/floors/${floorId}/quests/${questId}`
     );
     return response.data;
   }
 
   async createFloorQuest(
+    projectId: string,
     floorId: string,
     data: CreateQuestDto
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.post(
-      `/floors/${floorId}/quests`,
+      `/projects/${projectId}/floors/${floorId}/quests`,
       data
     );
     return response.data;
   }
 
   async updateFloorQuest(
+    projectId: string,
+    floorId: string,
     questId: string,
     data: Partial<CreateQuestDto>
   ): Promise<FloorQuest> {
-    const response: AxiosResponse<FloorQuest> = await this.client.patch(
-      `/floor-quests/${questId}`,
+    const response: AxiosResponse<FloorQuest> = await this.client.put(
+      `/projects/${projectId}/floors/${floorId}/quests/${questId}`,
       data
     );
     return response.data;
   }
 
-  async deleteFloorQuest(questId: string): Promise<void> {
-    await this.client.delete(`/floor-quests/${questId}`);
+  async deleteFloorQuest(
+    projectId: string,
+    floorId: string,
+    questId: string
+  ): Promise<void> {
+    await this.client.delete(
+      `/projects/${projectId}/floors/${floorId}/quests/${questId}`
+    );
   }
 
   // ========== HEALTH CHECK ==========

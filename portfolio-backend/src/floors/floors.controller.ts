@@ -97,3 +97,83 @@ export class FloorsController {
     return this.floorsService.getProjectFloorsOverview(projectId);
   }
 }
+
+// === NESTED ROUTES UNDER PROJECTS ===
+
+@Controller('projects/:projectId/floors')
+export class ProjectFloorsController {
+  constructor(private readonly floorsService: FloorsService) {}
+
+  @Get()
+  async getProjectFloors(@Param('projectId') projectId: string) {
+    return this.floorsService.findAllFloors(projectId);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createFloor(
+    @Param('projectId') projectId: string,
+    @Body() data: CreateFloorDto,
+  ) {
+    return this.floorsService.createFloor({ ...data, projectId });
+  }
+
+  @Get(':floorId')
+  async getFloorById(@Param('floorId') floorId: string) {
+    return this.floorsService.findFloorById(floorId);
+  }
+
+  @Put(':floorId')
+  async updateFloor(
+    @Param('floorId') floorId: string,
+    @Body() data: UpdateFloorDto,
+  ) {
+    return this.floorsService.updateFloor(floorId, data);
+  }
+
+  @Delete(':floorId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteFloor(@Param('floorId') floorId: string) {
+    await this.floorsService.deleteFloor(floorId);
+  }
+
+  @Get(':floorId/stats')
+  async getFloorStats(@Param('floorId') floorId: string) {
+    return this.floorsService.getFloorStats(floorId);
+  }
+
+  // === FLOOR QUESTS (NESTED) ===
+
+  @Get(':floorId/quests')
+  async getFloorQuests(@Param('floorId') floorId: string) {
+    return this.floorsService.findFloorQuests(floorId);
+  }
+
+  @Post(':floorId/quests')
+  @HttpCode(HttpStatus.CREATED)
+  async createFloorQuest(
+    @Param('floorId') floorId: string,
+    @Body() data: CreateFloorQuestDto,
+  ) {
+    return this.floorsService.createFloorQuest({ ...data, floorId });
+  }
+
+  @Get(':floorId/quests/:questId')
+  async getFloorQuestById(@Param('questId') questId: string) {
+    return this.floorsService.findFloorQuestById(questId);
+  }
+
+  @Put(':floorId/quests/:questId')
+  async updateFloorQuest(
+    @Param('questId') questId: string,
+    @Body() data: UpdateFloorQuestDto,
+  ) {
+    return this.floorsService.updateFloorQuest(questId, data);
+  }
+
+  @Delete(':floorId/quests/:questId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteFloorQuest(@Param('questId') questId: string) {
+    await this.floorsService.deleteFloorQuest(questId);
+  }
+}
