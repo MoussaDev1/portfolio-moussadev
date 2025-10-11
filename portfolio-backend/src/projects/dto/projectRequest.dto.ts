@@ -8,6 +8,7 @@ import {
   IsUrl,
 } from 'class-validator';
 import { ProjectType, ProjectStatus } from '@prisma/client';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateProjectDto {
   @IsString()
@@ -83,3 +84,5 @@ export class CreateProjectDto {
   @IsString({ each: true })
   technologyIds?: string[]; // Garde les IDs comme array pour les relations
 }
+
+export class UpdateProjectDto extends PartialType(CreateProjectDto) {}

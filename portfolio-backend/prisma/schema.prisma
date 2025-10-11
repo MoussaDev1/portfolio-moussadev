@@ -21,9 +21,12 @@ model Project {
   demoUrl          String?
   githubUrl        String?
   caseStudyUrl     String?
+
+// (métadonnées de projet)
   highlights       String[]
   challenges       String[]
   learnings        String[]
+
   duration         String?
   teamSize         Int?
   createdAt        DateTime            @default(now())

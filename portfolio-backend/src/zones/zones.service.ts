@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import type { QuestStatus, ZoneQuest } from '@prisma/client';
+import { UpdateZoneDto, CreateZoneDto } from './dto/zoneRequest.dto';
 
 @Injectable()
 export class ZonesService {
@@ -44,12 +45,7 @@ export class ZonesService {
     return zone;
   }
 
-  async createZone(data: {
-    name: string;
-    description?: string;
-    projectId: string;
-    order?: number;
-  }) {
+  async createZone(data: CreateZoneDto) {
     // Si order non spécifié, prendre le prochain disponible
     let finalOrder = data.order;
     if (!finalOrder) {

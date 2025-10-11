@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ZonesService } from './zones.service';
-import { CreateZoneDto, UpdateZoneDto } from './dto/zone.dto';
+import { CreateZoneDto, UpdateZoneDto } from './dto/zoneRequest.dto';
 import { CreateZoneQuestDto, UpdateZoneQuestDto } from './dto/zone-quest.dto';
 
 @Controller('zones')
