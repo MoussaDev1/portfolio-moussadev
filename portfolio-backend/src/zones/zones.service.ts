@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import type { QuestStatus, ZoneQuest } from '@prisma/client';
 import { UpdateZoneDto, CreateZoneDto } from './dto/zoneRequest.dto';
+import { CreateZoneQuestDto, UpdateZoneQuestDto } from './dto/zone-quest.dto';
 
 @Injectable()
 export class ZonesService {
@@ -14,8 +15,55 @@ export class ZonesService {
 
   // === ZONES CRUD ===
 
+  async createZone(createZoneDto: CreateZoneDto) {
+    // Si order non spécifié, prendre le prochain disponible
+    let finalOrder = createZoneDto.order;
+    if (!finalOrder) {
+      const lastZone = await this.prisma.zone.findFirst({
+        where: { projectId: createZoneDto.projectId },
+        orderBy: { order: 'desc' },
+      });
+      finalOrder = lastZone ? lastZone.order + 1 : 1;
+    }
+
+    // Vérifier que le projet existe
+    const project = await this.prisma.project.findUnique({
+      where: { id: createZoneDto.projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(
+        `Project with ID ${createZoneDto.projectId} not found`,
+      );
+    }
+
+    const createZone = await this.prisma.zone.create({
+      data: {
+        ...createZoneDto,
+        order: finalOrder,
+      },
+      include: {
+        project: true,
+        quests: true,
+      },
+    });
+    try {
+      return createZone;
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new BadRequestException(
+          `Zone with order ${finalOrder} already exists for this project`,
+        );
+      }
+      throw error;
+    }
+  }
+
   async findAllZones(projectId?: string) {
-    return this.prisma.zone.findMany({
+    const findZones = await this.prisma.zone.findMany({
       where: projectId ? { projectId } : undefined,
       include: {
         project: true,
@@ -25,10 +73,14 @@ export class ZonesService {
       },
       orderBy: { order: 'asc' },
     });
+    if (!findZones) {
+      throw new NotFoundException(`No zones found`);
+    }
+    return findZones;
   }
 
   async findZoneById(id: string) {
-    const zone = await this.prisma.zone.findUnique({
+    const findZone = await this.prisma.zone.findUnique({
       where: { id },
       include: {
         project: true,
@@ -38,87 +90,32 @@ export class ZonesService {
       },
     });
 
-    if (!zone) {
+    if (!findZone) {
       throw new NotFoundException(`Zone with ID ${id} not found`);
     }
-
-    return zone;
+    return findZone;
   }
 
-  async createZone(data: CreateZoneDto) {
-    // Si order non spécifié, prendre le prochain disponible
-    let finalOrder = data.order;
-    if (!finalOrder) {
-      const lastZone = await this.prisma.zone.findFirst({
-        where: { projectId: data.projectId },
-        orderBy: { order: 'desc' },
-      });
-      finalOrder = lastZone ? lastZone.order + 1 : 1;
-    }
-
-    // Vérifier que le projet existe
-    const project = await this.prisma.project.findUnique({
-      where: { id: data.projectId },
-    });
-
-    if (!project) {
-      throw new NotFoundException(
-        `Project with ID ${data.projectId} not found`,
-      );
-    }
-
-    try {
-      return await this.prisma.zone.create({
-        data: {
-          name: data.name,
-          description: data.description,
-          projectId: data.projectId,
-          order: finalOrder,
-        },
-        include: {
-          project: true,
-          quests: true,
-        },
-      });
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new BadRequestException(
-            `Zone with order ${finalOrder} already exists for this project`,
-          );
-        }
-      }
-      throw error;
-    }
-  }
-
-  async updateZone(
-    id: string,
-    data: {
-      name?: string;
-      description?: string;
-      status?: 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
-      order?: number;
-    },
-  ) {
+  async updateZone(id: string, updateZoneDto: UpdateZoneDto) {
     await this.findZoneById(id); // Vérifier existence
-
+    const updatedZone = await this.prisma.zone.update({
+      where: { id },
+      data: updateZoneDto,
+      include: {
+        project: true,
+        quests: true,
+      },
+    });
     try {
-      return await this.prisma.zone.update({
-        where: { id },
-        data,
-        include: {
-          project: true,
-          quests: true,
-        },
-      });
+      return updatedZone;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new BadRequestException(
-            `Zone with order ${data.order} already exists for this project`,
-          );
-        }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new BadRequestException(
+          `Zone with order ${updateZoneDto.order} already exists for this project`,
+        );
       }
       throw error;
     }
@@ -141,7 +138,7 @@ export class ZonesService {
   async findZoneQuests(zoneId: string) {
     await this.findZoneById(zoneId); // Vérifier que la zone existe
 
-    return this.prisma.zoneQuest.findMany({
+    const findZoneQuests = await this.prisma.zoneQuest.findMany({
       where: { zoneId },
       include: {
         zone: {
@@ -150,10 +147,11 @@ export class ZonesService {
       },
       orderBy: { createdAt: 'asc' },
     });
+    return findZoneQuests;
   }
 
   async findZoneQuestById(questId: string) {
-    const quest = await this.prisma.zoneQuest.findUnique({
+    const findZoneQuest = await this.prisma.zoneQuest.findUnique({
       where: { id: questId },
       include: {
         zone: {
@@ -162,60 +160,44 @@ export class ZonesService {
       },
     });
 
-    if (!quest) {
+    if (!findZoneQuest) {
       throw new NotFoundException(`Zone quest with ID ${questId} not found`);
     }
-
-    return quest;
+    return findZoneQuest;
   }
 
-  async createZoneQuest(data: {
-    title: string;
-    userStory: string;
-    definitionOfDone: string[];
-    manualTests: string[];
-    techDebt?: string;
-    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-    estimatedHours?: number;
-    zoneId: string;
-  }) {
-    await this.findZoneById(data.zoneId); // Vérifier que la zone existe
+  async createZoneQuest(id: string, createZoneQuestDto: CreateZoneQuestDto) {
+    await this.findZoneById(id); // Vérifier que la zone existe
 
-    return await this.prisma.zoneQuest.create({
-      data,
+    const createZoneQuest = await this.prisma.zoneQuest.create({
+      data: { ...createZoneQuestDto, zoneId: id },
       include: {
         zone: {
           include: { project: true },
         },
       },
     });
+    if (!createZoneQuest) {
+      throw new NotFoundException(`Zone quest with ID ${id} not found`);
+    }
+    return createZoneQuest;
   }
 
   async updateZoneQuest(
     questId: string,
-    data: {
-      title?: string;
-      userStory?: string;
-      definitionOfDone?: string[];
-      manualTests?: string[];
-      techDebt?: string;
-      status?: 'TODO' | 'IN_PROGRESS' | 'TESTING' | 'DONE' | 'BLOCKED';
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-      estimatedHours?: number;
-      actualHours?: number;
-    },
+    updateZoneQuestDto: UpdateZoneQuestDto,
   ) {
     await this.findZoneQuestById(questId); // Vérifier existence
 
     // Si passage en DONE, mettre completedAt
-    const updateData: Partial<ZoneQuest> = { ...data };
-    if (data.status === 'DONE') {
+    const updateData: Partial<ZoneQuest> = { ...updateZoneQuestDto };
+    if (updateZoneQuestDto.status === 'DONE') {
       updateData.completedAt = new Date();
-    } else if (data.status) {
+    } else if (updateZoneQuestDto.status) {
       updateData.completedAt = null;
     }
 
-    return await this.prisma.zoneQuest.update({
+    const updatedZoneQuest = await this.prisma.zoneQuest.update({
       where: { id: questId },
       data: updateData,
       include: {
@@ -224,6 +206,10 @@ export class ZonesService {
         },
       },
     });
+    if (!updatedZoneQuest) {
+      throw new NotFoundException(`Zone quest with ID ${questId} not found`);
+    }
+    return updatedZoneQuest;
   }
 
   async deleteZoneQuest(questId: string) {

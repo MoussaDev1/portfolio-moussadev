@@ -60,7 +60,7 @@ export class ZonesController {
     @Param('id') zoneId: string,
     @Body() data: CreateZoneQuestDto,
   ) {
-    return this.zonesService.createZoneQuest({ ...data, zoneId });
+    return this.zonesService.createZoneQuest(zoneId, data);
   }
 
   @Get('quests/:questId')
@@ -152,7 +152,7 @@ export class ProjectZonesController {
     @Param('zoneId') zoneId: string,
     @Body() data: CreateZoneQuestDto,
   ) {
-    return this.zonesService.createZoneQuest({ ...data, zoneId });
+    return this.zonesService.createZoneQuest(zoneId, data);
   }
 
   @Get(':zoneId/quests/:questId')
