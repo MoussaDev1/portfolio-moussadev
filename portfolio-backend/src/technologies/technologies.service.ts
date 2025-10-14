@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTechnologyDto } from './dto/create-technology.dto';
 import { UpdateTechnologyDto } from './dto/update-technology.dto';
+import { TechCategory, TechStatus } from '@prisma/client';
 
 @Injectable()
 export class TechnologiesService {
@@ -83,7 +84,7 @@ export class TechnologiesService {
 
   async findByCategory(category: string) {
     return this.prisma.technology.findMany({
-      where: { category: category.toUpperCase() as any },
+      where: { category: category.toUpperCase() as TechCategory },
       include: {
         projects: {
           include: {
@@ -118,7 +119,7 @@ export class TechnologiesService {
 
   async findByStatus(status: string) {
     return this.prisma.technology.findMany({
-      where: { status: status.toUpperCase() as any },
+      where: { status: status.toUpperCase() as TechStatus },
       include: {
         projects: {
           include: {

@@ -44,6 +44,7 @@ model Project {
 model Zone {
   id          String      @id @default(cuid())
   name        String
+  slug        String      @default("zone-slug")
   description String?
   order       Int
   status      ZoneStatus  @default(TODO)
@@ -60,6 +61,7 @@ model Zone {
 model Floor {
   id          String       @id @default(cuid())
   name        String
+  slug        String       @default("floor-slug")
   description String?
   order       Int
   status      FloorStatus  @default(TODO)

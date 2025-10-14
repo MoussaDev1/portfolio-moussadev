@@ -183,12 +183,17 @@ export class ZonesService {
     return createZoneQuest;
   }
 
+  /**
+   * Met à jour une quête de zone. Si le statut passe à 'DONE', la date d'achèvement est définie.
+   * @param questId
+   * @param updateZoneQuestDto
+   * @returns {Promise<Partial<ZoneQuest>>}
+   */
   async updateZoneQuest(
     questId: string,
     updateZoneQuestDto: UpdateZoneQuestDto,
   ) {
     await this.findZoneQuestById(questId); // Vérifier existence
-
     // Si passage en DONE, mettre completedAt
     const updateData: Partial<ZoneQuest> = { ...updateZoneQuestDto };
     if (updateZoneQuestDto.status === 'DONE') {
@@ -196,7 +201,6 @@ export class ZonesService {
     } else if (updateZoneQuestDto.status) {
       updateData.completedAt = null;
     }
-
     const updatedZoneQuest = await this.prisma.zoneQuest.update({
       where: { id: questId },
       data: updateData,
