@@ -10,7 +10,6 @@ import {
   FloorQuest,
   CreateZoneDto,
   CreateFloorDto,
-  CreateQuestDto,
 } from "@/types/api";
 import {
   Technology,
@@ -18,7 +17,12 @@ import {
   UpdateTechnologyDto,
   TechRadarStats,
 } from "@/types/technology";
-import { CreateZoneQuestDto, UpdateZoneQuestDto } from "@/types/forms";
+import {
+  CreateZoneQuestDto,
+  UpdateZoneQuestDto,
+  CreateFloorQuestDto,
+  UpdateFloorQuestDto,
+} from "@/types/forms";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -288,7 +292,7 @@ class ApiClient {
   async createFloorQuest(
     projectId: string,
     floorId: string,
-    data: CreateQuestDto
+    data: CreateFloorQuestDto
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.post(
       `/projects/${projectId}/floors/${floorId}/quests`,
@@ -301,7 +305,7 @@ class ApiClient {
     projectId: string,
     floorId: string,
     questId: string,
-    data: Partial<CreateQuestDto>
+    data: UpdateFloorQuestDto
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.put(
       `/projects/${projectId}/floors/${floorId}/quests/${questId}`,

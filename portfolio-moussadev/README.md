@@ -54,6 +54,7 @@ portfolio-moussadev/
 
 - Node.js 18+
 - npm, yarn, pnpm ou bun
+- PostgreSQL (pour le backend)
 
 ### Installation
 
@@ -65,11 +66,70 @@ cd portfolio-moussadev
 # Installer les dépendances
 npm install
 
+# Configurer les variables d'environnement
+cp .env.example .env.local
+
+# Éditer .env.local et définir :
+# - NEXT_PUBLIC_API_URL (URL de votre backend)
+# - ADMIN_PASSWORD (mot de passe pour accéder à /admin/*)
+# - JWT_SECRET (secret pour signer les tokens JWT)
+
+# Générer un JWT_SECRET fort :
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
 # Lancer le serveur de développement
 npm run dev
 ```
 
 Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur.
+
+### 🔐 Configuration de l'authentification (JWT)
+
+Le dashboard admin (`/admin/*`) est protégé par **authentification JWT sécurisée**. Pour y accéder :
+
+1. **Définir les variables d'environnement dans `.env.local`** :
+
+   ```bash
+   ADMIN_PASSWORD=VotreMotDePasseSecurise123!
+   JWT_SECRET=OHZ1wQHItLE8IVCEjDPnk5YL8Z8DTxTsn0dW5l0MLn8=
+   ```
+
+   **Générer un JWT_SECRET unique** :
+
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   ```
+
+2. **Accéder au dashboard** :
+
+   - Naviguer vers [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Vous serez redirigé vers `/admin/login`
+   - Entrer le mot de passe défini dans `.env.local`
+   - Un **token JWT signé** sera créé et stocké dans un cookie HttpOnly
+
+3. **🔒 Sécurité JWT** :
+
+   - Les tokens sont **signés cryptographiquement** avec HS256
+   - Validation automatique par le middleware (expiration, signature)
+   - Protection XSS : cookie HttpOnly (inaccessible au JavaScript)
+   - Protection CSRF : cookie SameSite=lax
+   - Durée de vie : 7 jours, puis reconnexion requise
+
+4. **⚠️ IMPORTANT - Sécurité en production** :
+   - Utilisez un mot de passe **fort et unique** (minimum 16 caractères)
+   - Générez un **JWT_SECRET unique** par environnement
+   - Ne commitez **JAMAIS** le fichier `.env.local`
+   - Utilisez HTTPS en production
+   - Changez le mot de passe régulièrement
+
+### 🚨 Variables d'environnement requises
+
+```bash
+# .env.local
+NEXT_PUBLIC_API_URL=http://localhost:3001/api  # URL du backend
+ADMIN_PASSWORD=VotreMotDePasseSecurise123!      # Mot de passe admin
+JWT_SECRET=OHZ1wQHItLE8IVCEjDPnk5YL8Z8DTxTsn0dW5l0MLn8=  # Secret JWT (32 bytes base64)
+```
 
 ### Scripts disponibles
 

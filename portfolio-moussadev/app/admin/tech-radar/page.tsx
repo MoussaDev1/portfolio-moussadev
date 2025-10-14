@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api";
 import {
   Technology,
-  TechRadarStats,
+  CreateTechnologyDto,
   TechCategory,
   TechStatus,
 } from "@/types/technology";
+import { useTechnologies } from "@/lib/hooks/useTechnologies";
+import TechnologyCard from "@/components/admin/technologies/TechnologyCard";
+import TechnologyForm from "@/components/admin/technologies/TechnologyForm";
 
 const CATEGORY_LABELS = {
   [TechCategory.LANGUAGES]: "Langages",
@@ -27,45 +29,75 @@ const STATUS_LABELS = {
   [TechStatus.DEPRECATED]: "Obsolète",
 };
 
-const STATUS_COLORS = {
-  [TechStatus.MASTERED]: "bg-green-100 text-green-800 border-green-200",
-  [TechStatus.LEARNING]: "bg-blue-100 text-blue-800 border-blue-200",
-  [TechStatus.TO_REVIEW]: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  [TechStatus.EXPLORING]: "bg-purple-100 text-purple-800 border-purple-200",
-  [TechStatus.DEPRECATED]: "bg-gray-100 text-gray-800 border-gray-200",
-};
-
 export default function TechRadarAdmin() {
-  const [technologies, setTechnologies] = useState<Technology[]>([]);
-  const [stats, setStats] = useState<TechRadarStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    technologies,
+    stats,
+    loading,
+    error,
+    fetchTechnologies,
+    fetchStats,
+    createTechnology,
+    updateTechnology,
+    deleteTechnology,
+  } = useTechnologies();
+
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [editingTechnology, setEditingTechnology] = useState<Technology | null>(
+    null
+  );
 
   useEffect(() => {
-    loadData();
-  }, [selectedCategory, selectedStatus]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-
+    const loadData = async () => {
       const filters: { category?: string; status?: string } = {};
       if (selectedCategory !== "all") filters.category = selectedCategory;
       if (selectedStatus !== "all") filters.status = selectedStatus;
 
-      const [techsData, statsData] = await Promise.all([
-        apiClient.getTechnologies(filters),
-        apiClient.getTechRadarStats(),
-      ]);
+      try {
+        await Promise.all([fetchTechnologies(filters), fetchStats()]);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+      }
+    };
 
-      setTechnologies(techsData);
-      setStats(statsData);
+    loadData();
+  }, [selectedCategory, selectedStatus, fetchTechnologies, fetchStats]);
+
+  const handleOpenModal = (technology?: Technology) => {
+    setEditingTechnology(technology || null);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTechnology(null);
+  };
+
+  const handleSubmit = async (data: CreateTechnologyDto) => {
+    try {
+      if (editingTechnology) {
+        await updateTechnology(editingTechnology.id, data);
+      } else {
+        await createTechnology(data);
+      }
+      handleCloseModal();
     } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
-    } finally {
-      setLoading(false);
+      console.error("Erreur lors de la soumission:", error);
+      alert(error instanceof Error ? error.message : "Une erreur est survenue");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTechnology(id);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      alert(
+        error instanceof Error ? error.message : "Erreur lors de la suppression"
+      );
     }
   };
 
@@ -96,10 +128,20 @@ export default function TechRadarAdmin() {
             Gestion de mon radar technologique personnel
           </p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+        <button
+          onClick={() => handleOpenModal()}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
           ➕ Nouvelle technologie
         </button>
       </div>
+
+      {/* Message d'erreur */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+          ⚠️ {error}
+        </div>
+      )}
 
       {/* Stats */}
       {stats && (
@@ -197,85 +239,40 @@ export default function TechRadarAdmin() {
       {/* Grid des technologies */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTechnologies.map((tech) => (
-          <div
+          <TechnologyCard
             key={tech.id}
-            className="bg-background rounded-lg border hover:border-blue-300 transition-colors cursor-pointer"
-          >
-            <div className="p-6">
-              {/* Header de la carte */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  {tech.iconUrl ? (
-                    <img
-                      src={tech.iconUrl}
-                      alt={tech.name}
-                      className="w-10 h-10 rounded"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold">
-                        {tech.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      {tech.name}
-                    </h3>
-                    <p className="text-sm text-foreground/70">
-                      {CATEGORY_LABELS[tech.category]}
-                    </p>
-                  </div>
-                </div>
-
-                <span
-                  className={`px-2 py-1 text-xs rounded-full border ${
-                    STATUS_COLORS[tech.status]
-                  }`}
-                >
-                  {STATUS_LABELS[tech.status]}
-                </span>
-              </div>
-
-              {/* Description */}
-              {tech.description && (
-                <p className="text-sm text-foreground/70 mb-4 line-clamp-2">
-                  {tech.description}
-                </p>
-              )}
-
-              {/* Statistiques */}
-              <div className="flex items-center justify-between text-sm text-foreground/70">
-                <div className="flex space-x-4">
-                  <span>
-                    {tech.projects.length} projet
-                    {tech.projects.length > 1 ? "s" : ""}
-                  </span>
-                  <span>
-                    {tech.posts.length} article
-                    {tech.posts.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-                {tech.websiteUrl && (
-                  <a
-                    href={tech.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    🔗
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+            technology={tech}
+            onEdit={handleOpenModal}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
 
       {filteredTechnologies.length === 0 && (
         <div className="text-center py-12 text-foreground/70">
           <p>Aucune technologie trouvée avec ces filtres.</p>
+        </div>
+      )}
+
+      {/* Modal de création/édition */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-2xl font-bold text-foreground">
+                {editingTechnology
+                  ? "Modifier la technologie"
+                  : "Nouvelle technologie"}
+              </h2>
+            </div>
+            <div className="p-6">
+              <TechnologyForm
+                technology={editingTechnology}
+                onSubmit={handleSubmit}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>

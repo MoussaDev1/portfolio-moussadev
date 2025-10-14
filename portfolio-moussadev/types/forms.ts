@@ -51,6 +51,19 @@ export interface FloorFormData {
   projectId: string;
 }
 
+export interface CreateFloorDto {
+  name: string;
+  description?: string;
+  order: number;
+  projectId: string;
+}
+
+export interface UpdateFloorDto {
+  name?: string;
+  description?: string;
+  order?: number;
+}
+
 // Form types pour Zone Quests
 export interface ZoneQuestFormData {
   title: string;
@@ -100,6 +113,32 @@ export interface FloorQuestFormData {
   estimatedPomodoros?: number;
   order: number;
   floorId: string;
+}
+
+export interface CreateFloorQuestDto {
+  title: string;
+  userStory: string;
+  acceptanceCriteria?: string;
+  definitionOfDone?: string[];
+  manualTests?: string[];
+  technicalDebt?: string;
+  priority?: Priority;
+  estimatedPomodoros?: number;
+  order: number;
+}
+
+export interface UpdateFloorQuestDto {
+  title?: string;
+  userStory?: string;
+  acceptanceCriteria?: string;
+  definitionOfDone?: string[];
+  manualTests?: string[];
+  technicalDebt?: string;
+  status?: QuestStatus;
+  priority?: Priority;
+  estimatedPomodoros?: number;
+  actualPomodoros?: number;
+  order?: number;
 }
 
 // Types pour les états de validation

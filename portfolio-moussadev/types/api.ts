@@ -135,9 +135,9 @@ export interface Project {
   caseStudyUrl?: string;
 
   // Métadonnées
-  highlights?: string; // JSON stringified array
-  challenges?: string;
-  learnings?: string;
+  highlights?: string[];
+  challenges?: string[];
+  learnings?: string[];
   duration?: string;
   teamSize?: number;
 
@@ -168,9 +168,9 @@ export interface CreateProjectDto {
   demoUrl?: string;
   githubUrl?: string;
   caseStudyUrl?: string;
-  highlights?: string;
-  challenges?: string;
-  learnings?: string;
+  highlights?: string[];
+  challenges?: string[];
+  learnings?: string[];
   duration?: string;
   teamSize?: number;
   technologyIds?: string[];

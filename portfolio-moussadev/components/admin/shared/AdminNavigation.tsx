@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const navigationItems = [
   {
@@ -20,6 +21,11 @@ const navigationItems = [
     icon: "🏯",
   },
   {
+    name: "Floors",
+    href: "/admin/floors",
+    icon: "🏢",
+  },
+  {
     name: "Tech Radar",
     href: "/admin/tech-radar",
     icon: "🧭",
@@ -28,6 +34,20 @@ const navigationItems = [
 
 export default function AdminNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/admin/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Erreur logout:", error);
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -62,13 +82,20 @@ export default function AdminNavigation() {
               })}
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <Link
               href="/"
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
               Retour au site
             </Link>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50"
+            >
+              {isLoggingOut ? "..." : "Déconnexion"}
+            </button>
           </div>
         </div>
       </div>

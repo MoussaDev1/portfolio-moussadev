@@ -46,3 +46,25 @@ export function getProjectStatusColor(
       return "bg-gray-500/10 text-gray-700 dark:text-gray-300";
   }
 }
+
+/**
+ * Génère un slug URL-friendly à partir d'un texte
+ * @param text - Le texte à convertir en slug
+ * @returns Le slug généré (lowercase, sans caractères spéciaux, espaces remplacés par des tirets)
+ *
+ * @example
+ * generateSlug("Mon Projet React") // "mon-projet-react"
+ * generateSlug("API REST & GraphQL") // "api-rest-graphql"
+ * generateSlug("Système d'authentification") // "systeme-dauthentification"
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase() // Convertir en minuscules
+    .trim() // Supprimer les espaces en début et fin
+    .normalize("NFD") // Normaliser les caractères Unicode (séparer les accents)
+    .replace(/[\u0300-\u036f]/g, "") // Supprimer les diacritiques (accents)
+    .replace(/[^a-z0-9\s-]/g, "") // Supprimer les caractères spéciaux sauf espaces et tirets
+    .replace(/\s+/g, "-") // Remplacer les espaces par des tirets
+    .replace(/-+/g, "-") // Remplacer les tirets multiples par un seul tiret
+    .replace(/^-+|-+$/g, ""); // Supprimer les tirets en début et fin
+}
