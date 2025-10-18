@@ -293,4 +293,6 @@ Les contributions sont les bienvenues ! N'hésitez pas à :
 
 ---
 
+## Nouvelles features upcoming
+
 ⭐ **N'hésitez pas à starrer le repo si ce projet vous a aidé !**
