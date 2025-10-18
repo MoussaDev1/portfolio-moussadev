@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { FloorQuest, QuestStatus, Priority } from "@/types/api";
 import { CreateFloorQuestDto, UpdateFloorQuestDto } from "@/types/forms";
-import { HiX } from "react-icons/hi";
+import { X } from "lucide-react";
 import clsx from "clsx";
 
 interface FloorQuestFormProps {
@@ -153,7 +153,7 @@ export function FloorQuestForm({
             onClick={onCancel}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
-            <HiX className="h-6 w-6" />
+            <X className="h-6 w-6" />
           </button>
         </div>
 

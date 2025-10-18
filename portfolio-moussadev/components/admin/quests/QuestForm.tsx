@@ -3,8 +3,27 @@
 import { useState, useEffect } from "react";
 import { Quest, QuestStatus, Priority } from "@/types/api";
 import { CreateZoneQuestDto, UpdateZoneQuestDto } from "@/types/forms";
-import { HiX } from "react-icons/hi";
-import clsx from "clsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Target, Loader2, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface QuestFormProps {
   quest?: Quest;
@@ -78,8 +97,6 @@ const stringToArray = (str: string): string[] => {
 
 export function QuestForm({
   quest,
-  zoneId,
-  projectId,
   onSubmit,
   onCancel,
   isLoading = false,
@@ -182,7 +199,7 @@ export function QuestForm({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -202,84 +219,66 @@ export function QuestForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            {quest ? "Éditer la quête" : "Créer une nouvelle quête"}
-          </h2>
-          <button
-            onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md transition-colors"
-            aria-label="Fermer"
-          >
-            <HiX className="h-6 w-6" />
-          </button>
-        </div>
+    <Dialog open={true} onOpenChange={() => onCancel()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-primary" />
+            <DialogTitle>
+              {quest ? "Éditer la quête" : "Créer une nouvelle quête"}
+            </DialogTitle>
+          </div>
+          <DialogDescription>
+            {quest
+              ? "Modifiez les informations de cette quête"
+              : "Ajoutez une nouvelle quête à votre zone"}
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Title */}
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Titre de la quête *
-                </label>
-                <input
-                  type="text"
+              <div className="space-y-2">
+                <Label htmlFor="title">
+                  Titre de la quête <span className="text-destructive">*</span>
+                </Label>
+                <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className={clsx(
-                    "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                    "dark:bg-gray-700 dark:border-gray-600 dark:text-white",
-                    errors.title
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300 dark:border-gray-600"
-                  )}
+                  className={errors.title ? "border-destructive" : ""}
                   placeholder="Ex: Implémenter l'authentification utilisateur"
                   disabled={isLoading}
                 />
                 {errors.title && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
                     {errors.title}
                   </p>
                 )}
               </div>
 
               {/* User Story */}
-              <div>
-                <label
-                  htmlFor="userStory"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  User Story *
-                </label>
-                <textarea
+              <div className="space-y-2">
+                <Label htmlFor="userStory">
+                  User Story <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
                   id="userStory"
                   name="userStory"
                   rows={3}
                   value={formData.userStory}
                   onChange={handleChange}
-                  className={clsx(
-                    "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                    "dark:bg-gray-700 dark:border-gray-600 dark:text-white",
-                    errors.userStory
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300 dark:border-gray-600"
-                  )}
+                  className={errors.userStory ? "border-destructive" : ""}
                   placeholder="En tant que [utilisateur], je veux [fonctionnalité] afin de [bénéfice]"
                   disabled={isLoading}
                 />
                 {errors.userStory && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
                     {errors.userStory}
                   </p>
                 )}
@@ -287,50 +286,54 @@ export function QuestForm({
 
               {/* Status & Priority */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="status"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Statut
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
+                <div className="space-y-2">
+                  <Label htmlFor="status">Statut</Label>
+                  <Select
                     value={formData.status}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        status: value as QuestStatus,
+                      }))
+                    }
                     disabled={isLoading}
                   >
-                    {STATUS_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="priority"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Priorité
-                  </label>
-                  <select
-                    id="priority"
-                    name="priority"
+                <div className="space-y-2">
+                  <Label htmlFor="priority">Priorité</Label>
+                  <Select
                     value={formData.priority}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        priority: value as Priority,
+                      }))
+                    }
                     disabled={isLoading}
                   >
-                    {PRIORITY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRIORITY_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -350,12 +353,12 @@ export function QuestForm({
                     min="1"
                     value={formData.estimatedHours || ""}
                     onChange={handleChange}
-                    className={clsx(
+                    className={cn(
                       "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
                       "dark:bg-gray-700 dark:border-gray-600 dark:text-white",
                       errors.estimatedHours
                         ? "border-red-300 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-600"
+                        : "border-gray-300 dark:border-gray-600",
                     )}
                     disabled={isLoading}
                   />
@@ -381,12 +384,12 @@ export function QuestForm({
                       min="0"
                       value={formData.actualHours || ""}
                       onChange={handleChange}
-                      className={clsx(
+                      className={cn(
                         "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
                         "dark:bg-gray-700 dark:border-gray-600 dark:text-white",
                         errors.actualHours
                           ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          : "border-gray-300 dark:border-gray-600",
                       )}
                       disabled={isLoading}
                     />
@@ -474,53 +477,30 @@ export function QuestForm({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
+          <DialogFooter>
+            <Button
               type="button"
+              variant="outline"
               onClick={onCancel}
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               disabled={isLoading}
             >
               Annuler
-            </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              disabled={isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {quest ? "Mise à jour..." : "Création..."}
-                </span>
+                </>
               ) : quest ? (
                 "Mettre à jour"
               ) : (
                 "Créer la quête"
               )}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

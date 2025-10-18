@@ -2,7 +2,21 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
+import {
+  Github,
+  ExternalLink,
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
+  Lightbulb,
+  Users,
+  Clock,
+} from "lucide-react";
 import { getProjectBySlug, getAllProjects } from "@/lib/projects";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import GalleryCarousel from "@/components/public/GalleryCarousel";
 
 interface ProjectPageProps {
   params: Promise<{ slug: string }>;
@@ -13,10 +27,63 @@ export async function generateMetadata({
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
-  if (!project) return { title: "Projet non trouvé" };
+
+  if (!project) {
+    return {
+      title: "Projet non trouvé",
+      description: "Le projet que vous recherchez n'existe pas.",
+    };
+  }
+
+  const technologies = project.technologies
+    ?.map((t) => t.technology.name)
+    .join(", ");
+
+  const projectTypeLabel =
+    project.type === "ZONE_SYSTEM" ? "Zone System" : "Floor System";
+
   return {
-    title: `${project.title} - MoussaDev`,
-    description: project.description || "Découvrez ce projet",
+    title: project.title,
+    description:
+      project.description ||
+      `Découvrez ${project.title}, un projet ${projectTypeLabel} développé par MoussaDev.`,
+    keywords: [
+      project.title,
+      ...(project.technologies?.map((t) => t.technology.name) || []),
+      projectTypeLabel.toLowerCase(),
+      "projet",
+      "portfolio",
+      "développement web",
+    ],
+    openGraph: {
+      title: `${project.title} | MoussaDev`,
+      description:
+        project.description ||
+        `Découvrez ${project.title}, un projet développé avec ${
+          technologies || "des technologies modernes"
+        }`,
+      type: "article",
+      publishedTime: project.createdAt,
+      modifiedTime: project.updatedAt,
+      authors: ["MoussaDev"],
+      images: project.thumbnailUrl
+        ? [
+            {
+              url: project.thumbnailUrl,
+              width: 1200,
+              height: 630,
+              alt: project.title,
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title} | MoussaDev`,
+      description:
+        project.description || `Découvrez ce projet développé par MoussaDev`,
+      images: project.thumbnailUrl ? [project.thumbnailUrl] : [],
+    },
   };
 }
 
@@ -40,7 +107,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </Link>
             <nav className="flex items-center gap-6">
               <Link
-                href="/#projects"
+                href="/projects"
                 className="text-foreground/70 hover:text-foreground transition-colors"
               >
                 Projets
@@ -77,20 +144,23 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <p className="text-xl text-foreground/70 mb-6">
             {project.description}
           </p>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-foreground/60">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
             {project.status && (
-              <span className="px-3 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full">
+              <Badge variant="secondary" className="px-3 py-1">
                 {project.status}
-              </span>
+              </Badge>
             )}
             {project.duration && (
-              <span className="flex items-center gap-1">
-                Duration: {project.duration}
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                {project.duration}
               </span>
             )}
             {project.teamSize && (
-              <span className="flex items-center gap-1">
-                Team: {project.teamSize}
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                {project.teamSize}{" "}
+                {project.teamSize > 1 ? "personnes" : "personne"}
               </span>
             )}
           </div>
@@ -98,31 +168,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         <div className="flex flex-wrap gap-4 mb-12">
           {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors font-medium"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  fillRule="evenodd"
-                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              GitHub
-            </a>
+            <Button asChild size="lg" variant="outline">
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github className="h-5 w-5 mr-2" />
+                Voir le code
+              </a>
+            </Button>
           )}
           {project.demoUrl && (
-            <a
-              href={project.demoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Demo
-            </a>
+            <Button asChild size="lg">
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="h-5 w-5 mr-2" />
+                Voir la démo
+              </a>
+            </Button>
           )}
         </div>
 
@@ -135,19 +202,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
         )}
 
+        {project.galleryImages && project.galleryImages.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-6">Galerie</h2>
+            <GalleryCarousel images={project.galleryImages} />
+          </div>
+        )}
+
         {project.highlights && project.highlights.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Highlights
-            </h2>
+            <h2 className="text-3xl font-bold mb-6">Points Forts</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {project.highlights.map((h, i) => (
-                <div
+                <Card
                   key={i}
-                  className="p-4 bg-green-500/5 border border-green-500/20 rounded-lg hover:bg-green-500/10 transition-colors"
+                  className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow"
                 >
-                  <p className="text-foreground/90">{h}</p>
-                </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm">{h}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
@@ -155,17 +232,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.technologies && project.technologies.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Technologies
-            </h2>
+            <h2 className="text-3xl font-bold mb-6">Technologies Utilisées</h2>
             <div className="flex flex-wrap gap-3">
               {project.technologies.map((tech) => (
-                <span
+                <Badge
                   key={tech.technology.id}
-                  className="px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg font-medium hover:bg-blue-500/20 transition-colors"
+                  variant="outline"
+                  className="px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
                 >
                   {tech.technology.name}
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
@@ -173,17 +249,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.challenges && project.challenges.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Challenges
-            </h2>
+            <h2 className="text-3xl font-bold mb-6">Défis Rencontrés</h2>
             <div className="space-y-3">
               {project.challenges.map((c, i) => (
-                <div
+                <Card
                   key={i}
-                  className="p-4 bg-orange-500/5 border-l-4 border-orange-500 rounded-r-lg"
+                  className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow"
                 >
-                  <p className="text-foreground/90">{c}</p>
-                </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm">{c}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
@@ -191,29 +270,32 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.learnings && project.learnings.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Learnings
-            </h2>
+            <h2 className="text-3xl font-bold mb-6">Apprentissages Clés</h2>
             <div className="space-y-3">
               {project.learnings.map((l, i) => (
-                <div
+                <Card
                   key={i}
-                  className="p-4 bg-purple-500/5 border-l-4 border-purple-500 rounded-r-lg"
+                  className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow"
                 >
-                  <p className="text-foreground/90">{l}</p>
-                </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Lightbulb className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm">{l}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         )}
 
         <div className="pt-8 mt-12 border-t border-border">
-          <Link
-            href="/#projects"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
-          >
-            Back to projects
-          </Link>
+          <Button asChild variant="ghost">
+            <Link href="/projects">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour aux projets
+            </Link>
+          </Button>
         </div>
       </main>
     </div>

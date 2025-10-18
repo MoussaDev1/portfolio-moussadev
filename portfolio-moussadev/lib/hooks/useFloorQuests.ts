@@ -37,7 +37,7 @@ export function useFloorQuests({ projectId, floorId }: UseFloorQuestsParams) {
       setFloorQuests(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Erreur lors du chargement"
+        err instanceof Error ? err.message : "Erreur lors du chargement",
       );
       console.error("Erreur useFloorQuests:", err);
     } finally {
@@ -61,7 +61,7 @@ export function useFloorQuests({ projectId, floorId }: UseFloorQuestsParams) {
 export function useFloorQuest(
   projectId: string,
   floorId: string,
-  questId: string
+  questId: string,
 ) {
   const [floorQuest, setFloorQuest] = useState<FloorQuest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,12 +80,12 @@ export function useFloorQuest(
       const data = await apiClient.getFloorQuestById(
         projectId,
         floorId,
-        questId
+        questId,
       );
       setFloorQuest(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Erreur lors du chargement"
+        err instanceof Error ? err.message : "Erreur lors du chargement",
       );
       console.error("Erreur useFloorQuest:", err);
     } finally {

@@ -7,7 +7,7 @@ export interface UseMutationOptions<TData, TVariables> {
 
 export function useMutation<TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options?: UseMutationOptions<TData, TVariables>
+  options?: UseMutationOptions<TData, TVariables>,
 ) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

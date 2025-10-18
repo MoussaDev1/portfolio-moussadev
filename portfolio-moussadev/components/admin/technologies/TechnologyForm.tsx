@@ -8,6 +8,27 @@ import {
   TechStatus,
 } from "@/types/technology";
 import { generateSlug } from "@/lib/utils";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Sparkles, Upload, Loader2, AlertCircle } from "lucide-react";
 
 interface TechnologyFormProps {
   technology?: Technology | null;
@@ -16,21 +37,21 @@ interface TechnologyFormProps {
 }
 
 const CATEGORY_OPTIONS = [
-  { value: TechCategory.LANGUAGES, label: "💬 Langages" },
-  { value: TechCategory.FRAMEWORKS, label: "🏗️ Frameworks" },
-  { value: TechCategory.LIBRARIES, label: "📚 Librairies" },
-  { value: TechCategory.TOOLS, label: "🔧 Outils" },
-  { value: TechCategory.PLATFORMS, label: "🌐 Plateformes" },
-  { value: TechCategory.DATABASES, label: "🗄️ Bases de données" },
-  { value: TechCategory.DEVOPS, label: "⚙️ DevOps" },
+  { value: TechCategory.LANGUAGES, label: "Langages" },
+  { value: TechCategory.FRAMEWORKS, label: "Frameworks" },
+  { value: TechCategory.LIBRARIES, label: "Librairies" },
+  { value: TechCategory.TOOLS, label: "Outils" },
+  { value: TechCategory.PLATFORMS, label: "Plateformes" },
+  { value: TechCategory.DATABASES, label: "Bases de données" },
+  { value: TechCategory.DEVOPS, label: "DevOps" },
 ];
 
 const STATUS_OPTIONS = [
-  { value: TechStatus.MASTERED, label: "🟢 Maîtrisée" },
-  { value: TechStatus.LEARNING, label: "🔵 En apprentissage" },
-  { value: TechStatus.TO_REVIEW, label: "🟡 À revoir" },
-  { value: TechStatus.EXPLORING, label: "🟣 Exploration" },
-  { value: TechStatus.DEPRECATED, label: "⚫ Obsolète" },
+  { value: TechStatus.MASTERED, label: "Maîtrisée" },
+  { value: TechStatus.LEARNING, label: "En apprentissage" },
+  { value: TechStatus.TO_REVIEW, label: "À revoir" },
+  { value: TechStatus.EXPLORING, label: "Exploration" },
+  { value: TechStatus.DEPRECATED, label: "Obsolète" },
 ];
 
 export default function TechnologyForm({
@@ -52,6 +73,8 @@ export default function TechnologyForm({
     Partial<Record<keyof CreateTechnologyDto, string>>
   >({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [iconPreview, setIconPreview] = useState<string | null>(null);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
 
   useEffect(() => {
     if (technology) {
@@ -65,8 +88,70 @@ export default function TechnologyForm({
         websiteUrl: technology.websiteUrl || "",
       });
       setSlugManuallyEdited(true);
+      if (technology.iconUrl) {
+        setIconPreview(technology.iconUrl);
+      }
     }
   }, [technology]);
+
+  const uploadIconToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+      }/upload/tech-icon`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Échec de l'upload de l'icône");
+    }
+
+    const data = await response.json();
+    return data.url;
+  };
+
+  const handleIconChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validation
+    if (!file.type.startsWith("image/")) {
+      alert("Veuillez sélectionner une image valide");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("L'image ne doit pas dépasser 5MB");
+      return;
+    }
+
+    try {
+      setIsUploadingIcon(true);
+
+      // Preview local
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIconPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload vers Cloudinary
+      const iconUrl = await uploadIconToCloudinary(file);
+      setFormData((prev) => ({ ...prev, iconUrl }));
+    } catch (error) {
+      console.error("Erreur upload icône:", error);
+      alert("Erreur lors de l'upload de l'icône");
+      setIconPreview(null);
+    } finally {
+      setIsUploadingIcon(false);
+    }
+  };
 
   const handleNameChange = (name: string) => {
     setFormData((prev) => ({
@@ -122,168 +207,257 @@ export default function TechnologyForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Nom */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          Nom de la technologie <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => handleNameChange(e.target.value)}
-          placeholder="Ex: TypeScript, React, PostgreSQL..."
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-            errors.name ? "border-red-500" : "border-border"
-          }`}
-        />
-        {errors.name && (
-          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-        )}
-      </div>
+    <Dialog open={true} onOpenChange={() => onCancel()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <DialogTitle>
+              {technology ? "Modifier la technologie" : "Nouvelle technologie"}
+            </DialogTitle>
+          </div>
+          <DialogDescription>
+            {technology
+              ? "Modifiez les informations de cette technologie"
+              : "Ajoutez une nouvelle technologie à votre Tech Radar"}
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Slug */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          Slug <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          value={formData.slug}
-          onChange={(e) => handleSlugChange(e.target.value)}
-          placeholder="Ex: typescript, react, postgresql"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-            errors.slug ? "border-red-500" : "border-border"
-          }`}
-        />
-        {errors.slug && (
-          <p className="text-red-500 text-sm mt-1">{errors.slug}</p>
-        )}
-        <p className="text-sm text-foreground/60 mt-1">
-          Généré automatiquement à partir du nom. Uniquement lettres minuscules,
-          chiffres et tirets.
-        </p>
-      </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Nom */}
+          <div className="space-y-2">
+            <Label htmlFor="name">
+              Nom de la technologie <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder="Ex: TypeScript, React, PostgreSQL..."
+              className={errors.name ? "border-destructive" : ""}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.name}
+              </p>
+            )}
+          </div>
 
-      {/* Catégorie & Statut (côte à côte) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Catégorie <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.category}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                category: e.target.value as TechCategory,
-              }))
-            }
-            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {CATEGORY_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Slug */}
+          <div className="space-y-2">
+            <Label htmlFor="slug">
+              Slug <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="slug"
+              value={formData.slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="Ex: typescript, react, postgresql"
+              className={errors.slug ? "border-destructive" : ""}
+            />
+            {errors.slug && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.slug}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground">
+              Généré automatiquement à partir du nom. Uniquement lettres
+              minuscules, chiffres et tirets.
+            </p>
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Statut <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.status}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                status: e.target.value as TechStatus,
-              }))
-            }
-            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+          {/* Catégorie & Statut */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">
+                Catégorie <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    category: value as TechCategory,
+                  }))
+                }
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Sélectionnez une catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Description */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          Description
-        </label>
-        <textarea
-          value={formData.description}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, description: e.target.value }))
-          }
-          placeholder="Décrivez cette technologie, votre expérience avec elle..."
-          rows={4}
-          className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-        />
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">
+                Statut <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: value as TechStatus,
+                  }))
+                }
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Sélectionnez un statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-      {/* URL icône */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          URL de l&apos;icône
-        </label>
-        <input
-          type="url"
-          value={formData.iconUrl}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, iconUrl: e.target.value }))
-          }
-          placeholder="https://example.com/icon.svg"
-          className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <p className="text-sm text-foreground/60 mt-1">
-          URL publique de l&apos;icône/logo de la technologie
-        </p>
-      </div>
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Décrivez cette technologie, votre expérience avec elle..."
+              rows={4}
+            />
+          </div>
 
-      {/* URL site web */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          Site web officiel
-        </label>
-        <input
-          type="url"
-          value={formData.websiteUrl}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, websiteUrl: e.target.value }))
-          }
-          placeholder="https://www.example.com"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-            errors.websiteUrl ? "border-red-500" : "border-border"
-          }`}
-        />
-        {errors.websiteUrl && (
-          <p className="text-red-500 text-sm mt-1">{errors.websiteUrl}</p>
-        )}
-      </div>
+          {/* Icône/Logo */}
+          <div className="space-y-2">
+            <Label>Icône/Logo de la technologie</Label>
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-border">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          {technology ? "Mettre à jour" : "Créer"}
-        </button>
-      </div>
-    </form>
+            {/* Preview de l'icône */}
+            {iconPreview &&
+              (iconPreview.startsWith("http://") ||
+                iconPreview.startsWith("https://") ||
+                iconPreview.startsWith("/") ||
+                iconPreview.startsWith("data:")) && (
+                <div className="relative w-32 h-32 border-2 border-border rounded-lg overflow-hidden bg-muted/20">
+                  <Image
+                    src={iconPreview}
+                    alt="Aperçu icône"
+                    fill
+                    className="object-contain"
+                    onError={() => setIconPreview(null)}
+                  />
+                </div>
+              )}
+
+            {/* Upload de l'icône */}
+            <div className="space-y-2">
+              <label className="cursor-pointer">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isUploadingIcon}
+                  className="w-full"
+                  asChild
+                >
+                  <span>
+                    {isUploadingIcon ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Upload en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Choisir une icône
+                      </>
+                    )}
+                  </span>
+                </Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleIconChange}
+                  className="hidden"
+                  disabled={isUploadingIcon}
+                />
+              </label>
+              <p className="text-sm text-muted-foreground">
+                Format recommandé : PNG ou SVG transparent, max 5MB
+              </p>
+            </div>
+
+            {/* OU saisie manuelle d'URL */}
+            <div className="space-y-2">
+              <Label htmlFor="iconUrl" className="text-muted-foreground">
+                Ou saisissez une URL d&apos;icône
+              </Label>
+              <Input
+                id="iconUrl"
+                type="url"
+                value={formData.iconUrl}
+                onChange={(e) => {
+                  const url = e.target.value;
+                  setFormData((prev) => ({ ...prev, iconUrl: url }));
+                  // Valider l'URL avant de mettre à jour le preview
+                  if (
+                    url &&
+                    (url.startsWith("http://") ||
+                      url.startsWith("https://") ||
+                      url.startsWith("/"))
+                  ) {
+                    setIconPreview(url);
+                  } else if (!url) {
+                    setIconPreview(null);
+                  }
+                }}
+                placeholder="https://example.com/icon.svg"
+              />
+            </div>
+          </div>
+
+          {/* URL site web */}
+          <div className="space-y-2">
+            <Label htmlFor="websiteUrl">Site web officiel</Label>
+            <Input
+              id="websiteUrl"
+              type="url"
+              value={formData.websiteUrl}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, websiteUrl: e.target.value }))
+              }
+              placeholder="https://www.example.com"
+              className={errors.websiteUrl ? "border-destructive" : ""}
+            />
+            {errors.websiteUrl && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.websiteUrl}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Annuler
+            </Button>
+            <Button type="submit" className="bg-primary">
+              {technology ? "Mettre à jour" : "Créer"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -72,6 +72,11 @@ export class CreateProjectDto {
   learnings?: string[];
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  galleryImages?: string[];
+
+  @IsOptional()
   @IsString()
   duration?: string;
 

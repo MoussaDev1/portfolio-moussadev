@@ -10,6 +10,9 @@ interface QuestListProps {
   onQuestUpdated: () => void;
   onCreateQuest: () => void;
   type: "zone" | "floor";
+  projectId: string;
+  zoneId?: string;
+  floorId?: string;
 }
 
 export default function QuestList({
@@ -17,6 +20,9 @@ export default function QuestList({
   onQuestUpdated,
   onCreateQuest,
   type,
+  projectId,
+  zoneId,
+  floorId,
 }: QuestListProps) {
   const [expandedQuest, setExpandedQuest] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | QuestStatus>("all");
@@ -24,22 +30,27 @@ export default function QuestList({
 
   const { mutate: updateQuestStatus, loading: updatingStatus } = useMutation(
     async ({ questId, status }: { questId: string; status: QuestStatus }) => {
-      if (type === "zone") {
-        return await apiClient.updateQuest(questId, { status });
-      } else {
-        return await apiClient.updateFloorQuest(questId, { status });
+      if (type === "zone" && zoneId) {
+        return await apiClient.updateZoneQuest(projectId, zoneId, questId, {
+          status,
+        });
+      } else if (type === "floor" && floorId) {
+        return await apiClient.updateFloorQuest(projectId, floorId, questId, {
+          status,
+        });
       }
-    }
+    },
   );
 
   const { mutate: deleteQuest, loading: deleting } = useMutation(
-    (questId: string) => {
-      if (type === "zone") {
-        return apiClient.deleteQuest(questId);
-      } else {
-        return apiClient.deleteFloorQuest(questId);
+    async (questId: string) => {
+      if (type === "zone" && zoneId) {
+        return await apiClient.deleteZoneQuest(projectId, zoneId, questId);
+      } else if (type === "floor" && floorId) {
+        return await apiClient.deleteFloorQuest(projectId, floorId, questId);
       }
-    }
+      throw new Error("Invalid quest type or missing ID");
+    },
   );
 
   const filteredQuests = quests.filter((quest) => {
@@ -52,7 +63,7 @@ export default function QuestList({
 
   const handleStatusChange = async (
     questId: string,
-    newStatus: QuestStatus
+    newStatus: QuestStatus,
   ) => {
     const result = await updateQuestStatus({ questId, status: newStatus });
     if (result) {
@@ -63,7 +74,7 @@ export default function QuestList({
   const handleDeleteQuest = async (quest: Quest | FloorQuest) => {
     if (
       window.confirm(
-        `Êtes-vous sûr de vouloir supprimer la quête "${quest.title}" ?`
+        `Êtes-vous sûr de vouloir supprimer la quête "${quest.title}" ?`,
       )
     ) {
       const result = await deleteQuest(quest.id);
@@ -83,6 +94,8 @@ export default function QuestList({
         "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
       [QuestStatus.DONE]:
         "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      [QuestStatus.BLOCKED]:
+        "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
     };
     return colors[status];
   };
@@ -93,6 +106,7 @@ export default function QuestList({
       [QuestStatus.IN_PROGRESS]: "🚀",
       [QuestStatus.TESTING]: "🧪",
       [QuestStatus.DONE]: "✅",
+      [QuestStatus.BLOCKED]: "🚫",
     };
     return icons[status];
   };
@@ -126,7 +140,7 @@ export default function QuestList({
     done: quests.filter((q) => q.status === QuestStatus.DONE).length,
     totalPomodoros: quests.reduce(
       (acc, q) => acc + (q.estimatedPomodoros || 0),
-      0
+      0,
     ),
   };
 
@@ -230,7 +244,7 @@ export default function QuestList({
                         </h4>
                         <span
                           className={`text-sm ${getPriorityColor(
-                            quest.priority
+                            quest.priority,
                           )}`}
                         >
                           {getPriorityIcon(quest.priority)} {quest.priority}
@@ -255,12 +269,12 @@ export default function QuestList({
                           onChange={(e) =>
                             handleStatusChange(
                               quest.id,
-                              e.target.value as QuestStatus
+                              e.target.value as QuestStatus,
                             )
                           }
                           disabled={updatingStatus}
                           className={`px-2 py-1 rounded text-xs font-medium border-0 ${getStatusColor(
-                            quest.status
+                            quest.status,
                           )}`}
                         >
                           <option value={QuestStatus.TODO}>
@@ -280,7 +294,7 @@ export default function QuestList({
                         <button
                           onClick={() =>
                             setExpandedQuest(
-                              expandedQuest === quest.id ? null : quest.id
+                              expandedQuest === quest.id ? null : quest.id,
                             )
                           }
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"

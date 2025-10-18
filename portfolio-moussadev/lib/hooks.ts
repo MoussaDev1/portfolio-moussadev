@@ -7,6 +7,7 @@ export function useProjects(featured?: boolean) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -17,7 +18,7 @@ export function useProjects(featured?: boolean) {
         setProjects(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to fetch projects"
+          err instanceof Error ? err.message : "Failed to fetch projects",
         );
         console.error("Error fetching projects:", err);
       } finally {
@@ -26,9 +27,11 @@ export function useProjects(featured?: boolean) {
     };
 
     fetchProjects();
-  }, [featured]);
+  }, [featured, refetchTrigger]);
 
-  return { projects, loading, error, refetch: () => setLoading(true) };
+  const refetch = () => setRefetchTrigger((prev) => prev + 1);
+
+  return { projects, loading, error, refetch };
 }
 
 // Hook pour récupérer un projet par slug
@@ -48,7 +51,7 @@ export function useProject(slug: string) {
         setProject(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to fetch project"
+          err instanceof Error ? err.message : "Failed to fetch project",
         );
         console.error("Error fetching project:", err);
       } finally {
@@ -79,7 +82,7 @@ export function useProjectStats(projectId: string) {
         setStats(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to fetch project stats"
+          err instanceof Error ? err.message : "Failed to fetch project stats",
         );
         console.error("Error fetching project stats:", err);
       } finally {

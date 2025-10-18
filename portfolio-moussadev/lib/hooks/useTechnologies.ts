@@ -33,7 +33,7 @@ export function useTechnologies() {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Récupérer les statistiques
@@ -115,7 +115,7 @@ export function useTechnologies() {
         setLoading(false);
       }
     },
-    [stats]
+    [stats],
   );
 
   // Mettre à jour une technologie
@@ -126,7 +126,7 @@ export function useTechnologies() {
       try {
         const updatedTech = await apiClient.updateTechnology(id, dto);
         setTechnologies((prev) =>
-          prev.map((tech) => (tech.id === id ? updatedTech : tech))
+          prev.map((tech) => (tech.id === id ? updatedTech : tech)),
         );
         return updatedTech;
       } catch (err) {
@@ -140,7 +140,7 @@ export function useTechnologies() {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Supprimer une technologie
@@ -166,14 +166,14 @@ export function useTechnologies() {
                   (stats.byStatus[
                     deletedTech.status.toLowerCase() as keyof typeof stats.byStatus
                   ] || 0) - 1,
-                  0
+                  0,
                 ),
             },
             byCategory: {
               ...stats.byCategory,
               [deletedTech.category]: Math.max(
                 (stats.byCategory[deletedTech.category] || 0) - 1,
-                0
+                0,
               ),
             },
           });
@@ -189,7 +189,7 @@ export function useTechnologies() {
         setLoading(false);
       }
     },
-    [technologies, stats]
+    [technologies, stats],
   );
 
   return {

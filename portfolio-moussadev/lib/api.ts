@@ -42,7 +42,7 @@ class ApiClient {
       (error) => {
         console.error("API Error:", error.response?.data || error.message);
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -53,21 +53,21 @@ class ApiClient {
       featured !== undefined ? { featured: featured.toString() } : {};
     const response: AxiosResponse<Project[]> = await this.client.get(
       "/projects",
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getProject(id: string): Promise<Project> {
     const response: AxiosResponse<Project> = await this.client.get(
-      `/projects/${id}`
+      `/projects/${id}`,
     );
     return response.data;
   }
 
   async getProjectBySlug(slug: string): Promise<Project> {
     const response: AxiosResponse<Project> = await this.client.get(
-      `/projects/slug/${slug}`
+      `/projects/slug/${slug}`,
     );
     return response.data;
   }
@@ -75,7 +75,7 @@ class ApiClient {
   async createProject(data: CreateProjectDto): Promise<Project> {
     const response: AxiosResponse<Project> = await this.client.post(
       "/projects",
-      data
+      data,
     );
     return response.data;
   }
@@ -83,7 +83,7 @@ class ApiClient {
   async updateProject(id: string, data: UpdateProjectDto): Promise<Project> {
     const response: AxiosResponse<Project> = await this.client.patch(
       `/projects/${id}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -94,7 +94,7 @@ class ApiClient {
 
   async getProjectStats(id: string): Promise<ProjectStats> {
     const response: AxiosResponse<ProjectStats> = await this.client.get(
-      `/projects/${id}/stats`
+      `/projects/${id}/stats`,
     );
     return response.data;
   }
@@ -103,14 +103,14 @@ class ApiClient {
 
   async getZones(projectId: string): Promise<Zone[]> {
     const response: AxiosResponse<Zone[]> = await this.client.get(
-      `/projects/${projectId}/zones`
+      `/projects/${projectId}/zones`,
     );
     return response.data;
   }
 
   async getZoneById(projectId: string, zoneId: string): Promise<Zone> {
     const response: AxiosResponse<Zone> = await this.client.get(
-      `/projects/${projectId}/zones/${zoneId}`
+      `/projects/${projectId}/zones/${zoneId}`,
     );
     return response.data;
   }
@@ -118,7 +118,7 @@ class ApiClient {
   async createZone(projectId: string, data: CreateZoneDto): Promise<Zone> {
     const response: AxiosResponse<Zone> = await this.client.post(
       `/projects/${projectId}/zones`,
-      data
+      data,
     );
     return response.data;
   }
@@ -126,11 +126,11 @@ class ApiClient {
   async updateZone(
     projectId: string,
     zoneId: string,
-    data: Partial<CreateZoneDto>
+    data: Partial<CreateZoneDto>,
   ): Promise<Zone> {
     const response: AxiosResponse<Zone> = await this.client.put(
       `/projects/${projectId}/zones/${zoneId}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -141,7 +141,7 @@ class ApiClient {
 
   async getZoneStats(
     projectId: string,
-    zoneId: string
+    zoneId: string,
   ): Promise<{
     totalQuests: number;
     completedQuests: number;
@@ -150,7 +150,7 @@ class ApiClient {
     completionPercentage: number;
   }> {
     const response = await this.client.get(
-      `/projects/${projectId}/zones/${zoneId}/stats`
+      `/projects/${projectId}/zones/${zoneId}/stats`,
     );
     return response.data;
   }
@@ -159,14 +159,14 @@ class ApiClient {
 
   async getFloors(projectId: string): Promise<Floor[]> {
     const response: AxiosResponse<Floor[]> = await this.client.get(
-      `/projects/${projectId}/floors`
+      `/projects/${projectId}/floors`,
     );
     return response.data;
   }
 
   async getFloorById(projectId: string, floorId: string): Promise<Floor> {
     const response: AxiosResponse<Floor> = await this.client.get(
-      `/projects/${projectId}/floors/${floorId}`
+      `/projects/${projectId}/floors/${floorId}`,
     );
     return response.data;
   }
@@ -174,7 +174,7 @@ class ApiClient {
   async createFloor(projectId: string, data: CreateFloorDto): Promise<Floor> {
     const response: AxiosResponse<Floor> = await this.client.post(
       `/projects/${projectId}/floors`,
-      data
+      data,
     );
     return response.data;
   }
@@ -182,11 +182,11 @@ class ApiClient {
   async updateFloor(
     projectId: string,
     floorId: string,
-    data: Partial<CreateFloorDto>
+    data: Partial<CreateFloorDto>,
   ): Promise<Floor> {
     const response: AxiosResponse<Floor> = await this.client.put(
       `/projects/${projectId}/floors/${floorId}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -197,7 +197,7 @@ class ApiClient {
 
   async getFloorStats(
     projectId: string,
-    floorId: string
+    floorId: string,
   ): Promise<{
     totalQuests: number;
     completedQuests: number;
@@ -206,7 +206,7 @@ class ApiClient {
     completionPercentage: number;
   }> {
     const response = await this.client.get(
-      `/projects/${projectId}/floors/${floorId}/stats`
+      `/projects/${projectId}/floors/${floorId}/stats`,
     );
     return response.data;
   }
@@ -215,7 +215,7 @@ class ApiClient {
 
   async getZoneQuests(projectId: string, zoneId: string): Promise<Quest[]> {
     const response: AxiosResponse<Quest[]> = await this.client.get(
-      `/projects/${projectId}/zones/${zoneId}/quests`
+      `/projects/${projectId}/zones/${zoneId}/quests`,
     );
     return response.data;
   }
@@ -223,10 +223,10 @@ class ApiClient {
   async getZoneQuestById(
     projectId: string,
     zoneId: string,
-    questId: string
+    questId: string,
   ): Promise<Quest> {
     const response: AxiosResponse<Quest> = await this.client.get(
-      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`
+      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`,
     );
     return response.data;
   }
@@ -234,11 +234,11 @@ class ApiClient {
   async createZoneQuest(
     projectId: string,
     zoneId: string,
-    data: CreateZoneQuestDto
+    data: CreateZoneQuestDto,
   ): Promise<Quest> {
     const response: AxiosResponse<Quest> = await this.client.post(
       `/projects/${projectId}/zones/${zoneId}/quests`,
-      data
+      data,
     );
     return response.data;
   }
@@ -247,11 +247,11 @@ class ApiClient {
     projectId: string,
     zoneId: string,
     questId: string,
-    data: UpdateZoneQuestDto
+    data: UpdateZoneQuestDto,
   ): Promise<Quest> {
     const response: AxiosResponse<Quest> = await this.client.put(
       `/projects/${projectId}/zones/${zoneId}/quests/${questId}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -259,10 +259,10 @@ class ApiClient {
   async deleteZoneQuest(
     projectId: string,
     zoneId: string,
-    questId: string
+    questId: string,
   ): Promise<void> {
     await this.client.delete(
-      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`
+      `/projects/${projectId}/zones/${zoneId}/quests/${questId}`,
     );
   }
 
@@ -270,10 +270,10 @@ class ApiClient {
 
   async getFloorQuests(
     projectId: string,
-    floorId: string
+    floorId: string,
   ): Promise<FloorQuest[]> {
     const response: AxiosResponse<FloorQuest[]> = await this.client.get(
-      `/projects/${projectId}/floors/${floorId}/quests`
+      `/projects/${projectId}/floors/${floorId}/quests`,
     );
     return response.data;
   }
@@ -281,10 +281,10 @@ class ApiClient {
   async getFloorQuestById(
     projectId: string,
     floorId: string,
-    questId: string
+    questId: string,
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.get(
-      `/projects/${projectId}/floors/${floorId}/quests/${questId}`
+      `/projects/${projectId}/floors/${floorId}/quests/${questId}`,
     );
     return response.data;
   }
@@ -292,11 +292,11 @@ class ApiClient {
   async createFloorQuest(
     projectId: string,
     floorId: string,
-    data: CreateFloorQuestDto
+    data: CreateFloorQuestDto,
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.post(
       `/projects/${projectId}/floors/${floorId}/quests`,
-      data
+      data,
     );
     return response.data;
   }
@@ -305,11 +305,11 @@ class ApiClient {
     projectId: string,
     floorId: string,
     questId: string,
-    data: UpdateFloorQuestDto
+    data: UpdateFloorQuestDto,
   ): Promise<FloorQuest> {
     const response: AxiosResponse<FloorQuest> = await this.client.put(
       `/projects/${projectId}/floors/${floorId}/quests/${questId}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -317,19 +317,18 @@ class ApiClient {
   async deleteFloorQuest(
     projectId: string,
     floorId: string,
-    questId: string
+    questId: string,
   ): Promise<void> {
     await this.client.delete(
-      `/projects/${projectId}/floors/${floorId}/quests/${questId}`
+      `/projects/${projectId}/floors/${floorId}/quests/${questId}`,
     );
   }
 
   // ========== HEALTH CHECK ==========
 
   async healthCheck(): Promise<{ message: string }> {
-    const response: AxiosResponse<{ message: string }> = await this.client.get(
-      "/"
-    );
+    const response: AxiosResponse<{ message: string }> =
+      await this.client.get("/");
     return response.data;
   }
 
@@ -344,14 +343,14 @@ class ApiClient {
     if (filters?.status) params.append("status", filters.status);
 
     const response: AxiosResponse<Technology[]> = await this.client.get(
-      `/technologies${params.toString() ? `?${params.toString()}` : ""}`
+      `/technologies${params.toString() ? `?${params.toString()}` : ""}`,
     );
     return response.data;
   }
 
   async getTechnology(identifier: string): Promise<Technology> {
     const response: AxiosResponse<Technology> = await this.client.get(
-      `/technologies/${identifier}`
+      `/technologies/${identifier}`,
     );
     return response.data;
   }
@@ -359,18 +358,18 @@ class ApiClient {
   async createTechnology(data: CreateTechnologyDto): Promise<Technology> {
     const response: AxiosResponse<Technology> = await this.client.post(
       "/technologies",
-      data
+      data,
     );
     return response.data;
   }
 
   async updateTechnology(
     id: string,
-    data: UpdateTechnologyDto
+    data: UpdateTechnologyDto,
   ): Promise<Technology> {
     const response: AxiosResponse<Technology> = await this.client.patch(
       `/technologies/${id}`,
-      data
+      data,
     );
     return response.data;
   }
@@ -381,7 +380,7 @@ class ApiClient {
 
   async getTechRadarStats(): Promise<TechRadarStats> {
     const response: AxiosResponse<TechRadarStats> = await this.client.get(
-      "/technologies/stats"
+      "/technologies/stats",
     );
     return response.data;
   }

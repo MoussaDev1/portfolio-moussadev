@@ -32,7 +32,7 @@ export function useProjects(featured?: boolean) {
       setProjects(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to refetch projects"
+        err instanceof Error ? err.message : "Failed to refetch projects",
       );
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ export function useProject(slug: string) {
         setProject(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to fetch project"
+          err instanceof Error ? err.message : "Failed to fetch project",
         );
       } finally {
         setLoading(false);

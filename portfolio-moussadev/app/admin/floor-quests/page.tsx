@@ -11,7 +11,28 @@ import { FloorQuest, QuestStatus, Priority } from "@/types/api";
 import { CreateFloorQuestDto, UpdateFloorQuestDto } from "@/types/forms";
 import { FloorQuestCard } from "@/components/admin/floor-quests/FloorQuestCard";
 import { FloorQuestForm } from "@/components/admin/floor-quests/FloorQuestForm";
-import { HiFilter, HiPlus, HiSearch, HiChartBar } from "react-icons/hi";
+import {
+  Building2,
+  Target,
+  Plus,
+  Search,
+  Loader2,
+  AlertTriangle,
+  CheckCircle,
+  Activity,
+  TrendingUp,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DndContext,
   closestCenter,
@@ -91,14 +112,14 @@ export default function AdminFloorQuestsPage() {
       apiClient.createFloorQuest(
         selectedProjectId || "",
         selectedFloorId || "",
-        data
+        data,
       ),
     {
       onSuccess: () => {
         setShowForm(false);
         refetch();
       },
-    }
+    },
   );
 
   const updateMutation = useMutation(
@@ -107,7 +128,7 @@ export default function AdminFloorQuestsPage() {
         selectedProjectId || "",
         selectedFloorId || "",
         id,
-        data
+        data,
       ),
     {
       onSuccess: () => {
@@ -115,7 +136,7 @@ export default function AdminFloorQuestsPage() {
         setEditingQuest(undefined);
         refetch();
       },
-    }
+    },
   );
 
   const deleteMutation = useMutation(
@@ -123,13 +144,13 @@ export default function AdminFloorQuestsPage() {
       apiClient.deleteFloorQuest(
         selectedProjectId || "",
         selectedFloorId || "",
-        id
+        id,
       ),
     {
       onSuccess: () => {
         refetch();
       },
-    }
+    },
   );
 
   // Gérer les paramètres URL pour pré-sélection
@@ -155,7 +176,7 @@ export default function AdminFloorQuestsPage() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -187,7 +208,7 @@ export default function AdminFloorQuestsPage() {
               selectedProjectId || "",
               selectedFloorId || "",
               quest.id,
-              { order: tempOrder }
+              { order: tempOrder },
             );
           }
         }
@@ -201,7 +222,7 @@ export default function AdminFloorQuestsPage() {
               selectedProjectId || "",
               selectedFloorId || "",
               quest.id,
-              { order: finalOrder }
+              { order: finalOrder },
             );
           }
         }
@@ -229,7 +250,7 @@ export default function AdminFloorQuestsPage() {
   };
 
   const handleSubmit = async (
-    data: CreateFloorQuestDto | UpdateFloorQuestDto
+    data: CreateFloorQuestDto | UpdateFloorQuestDto,
   ) => {
     if (editingQuest) {
       await updateMutation.mutate({
@@ -261,7 +282,7 @@ export default function AdminFloorQuestsPage() {
     total: localFloorQuests.length,
     todo: localFloorQuests.filter((q) => q.status === QuestStatus.TODO).length,
     inProgress: localFloorQuests.filter(
-      (q) => q.status === QuestStatus.IN_PROGRESS
+      (q) => q.status === QuestStatus.IN_PROGRESS,
     ).length,
     testing: localFloorQuests.filter((q) => q.status === QuestStatus.TESTING)
       .length,
@@ -270,11 +291,11 @@ export default function AdminFloorQuestsPage() {
       .length,
     totalEstimatedPomodoros: localFloorQuests.reduce(
       (acc, q) => acc + (q.estimatedPomodoros || 0),
-      0
+      0,
     ),
     totalActualPomodoros: localFloorQuests.reduce(
       (acc, q) => acc + (q.actualPomodoros || 0),
-      0
+      0,
     ),
   };
 
@@ -292,306 +313,311 @@ export default function AdminFloorQuestsPage() {
   }
 
   return (
-    <div className="p-6 sm:p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          🎯 Gestion des Floor Quests
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Gérez les quêtes de vos Floors
-        </p>
-      </div>
-
-      {/* Filters & Actions */}
-      <div className="mb-6 space-y-4">
-        {/* Project & Floor Selector */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="project-select"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              <HiFilter className="inline h-4 w-4 mr-1" />
-              Projet
-            </label>
-            <select
-              id="project-select"
-              value={selectedProjectId}
-              onChange={(e) => {
-                setSelectedProjectId(e.target.value);
-                setSelectedFloorId(""); // Reset floor selection
-              }}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">-- Choisir un projet --</option>
-              {projects?.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.title} ({project.type})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="floor-select"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              <HiFilter className="inline h-4 w-4 mr-1" />
-              Floor
-            </label>
-            <select
-              id="floor-select"
-              value={selectedFloorId}
-              onChange={(e) => setSelectedFloorId(e.target.value)}
-              disabled={!selectedProjectId || floorsLoading}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">-- Tous les Floors --</option>
-              {floors?.map((floor) => (
-                <option key={floor.id} value={floor.id}>
-                  {floor.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Search & Filters */}
-        {selectedProjectId && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Search */}
-            <div className="sm:col-span-1">
-              <label
-                htmlFor="search"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                <HiSearch className="inline h-4 w-4 mr-1" />
-                Recherche
-              </label>
-              <input
-                id="search"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Titre ou user story..."
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              />
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-orange-500/10 rounded-lg">
+              <Target className="h-6 w-6 text-orange-600 dark:text-orange-400" />
             </div>
-
-            {/* Status Filter */}
             <div>
-              <label
-                htmlFor="status-filter"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Statut
-              </label>
-              <select
-                id="status-filter"
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value as QuestStatus | "ALL")
-                }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="ALL">Tous</option>
-                <option value={QuestStatus.TODO}>À faire</option>
-                <option value={QuestStatus.IN_PROGRESS}>En cours</option>
-                <option value={QuestStatus.TESTING}>Tests</option>
-                <option value={QuestStatus.DONE}>Terminée</option>
-                <option value={QuestStatus.BLOCKED}>Bloquée</option>
-              </select>
-            </div>
-
-            {/* Priority Filter */}
-            <div>
-              <label
-                htmlFor="priority-filter"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Priorité
-              </label>
-              <select
-                id="priority-filter"
-                value={priorityFilter}
-                onChange={(e) =>
-                  setPriorityFilter(e.target.value as Priority | "ALL")
-                }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="ALL">Toutes</option>
-                <option value={Priority.LOW}>Basse</option>
-                <option value={Priority.MEDIUM}>Moyenne</option>
-                <option value={Priority.HIGH}>Haute</option>
-                <option value={Priority.CRITICAL}>Critique</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Create Button */}
-        {selectedProjectId && selectedFloorId && (
-          <div className="flex justify-end">
-            <button
-              onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-            >
-              <HiPlus className="h-5 w-5" />
-              Nouvelle Quête
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Statistics */}
-      {selectedProjectId && localFloorQuests.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <HiChartBar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Statistiques
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.total}
-              </p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                À faire
-              </p>
-              <p className="text-2xl font-bold text-gray-500">{stats.todo}</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                En cours
-              </p>
-              <p className="text-2xl font-bold text-blue-600">
-                {stats.inProgress}
-              </p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Tests</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {stats.testing}
-              </p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Terminées
-              </p>
-              <p className="text-2xl font-bold text-green-600">{stats.done}</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Bloquées
-              </p>
-              <p className="text-2xl font-bold text-red-600">{stats.blocked}</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Pomodoros Est.
-              </p>
-              <p className="text-2xl font-bold text-purple-600">
-                {stats.totalEstimatedPomodoros}
-              </p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Pomodoros Réels
-              </p>
-              <p className="text-2xl font-bold text-purple-600">
-                {stats.totalActualPomodoros}
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                Gestion des Floor Quests
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Gérez les quêtes de vos Floors
               </p>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Content */}
-      {!selectedProjectId ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            Sélectionnez un projet pour voir les Floor Quests
-          </p>
-        </div>
-      ) : !selectedFloorId ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            Sélectionnez un Floor pour voir ses quêtes
-          </p>
-        </div>
-      ) : floorQuestsLoading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-purple-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Chargement des quêtes...
-          </p>
-        </div>
-      ) : filteredFloorQuests.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-6xl mb-4">🎯</div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
-            {searchQuery || statusFilter !== "ALL" || priorityFilter !== "ALL"
-              ? "Aucune quête ne correspond aux filtres"
-              : "Aucune quête dans ce Floor"}
-          </p>
-          {!searchQuery &&
-            statusFilter === "ALL" &&
-            priorityFilter === "ALL" && (
-              <button
-                onClick={handleCreate}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              >
-                <HiPlus className="h-5 w-5" />
-                Créer la première quête
-              </button>
+        {/* Filters & Actions */}
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6 space-y-4">
+            {/* Project & Floor Selector */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="project-select">Projet</Label>
+                <Select
+                  value={selectedProjectId}
+                  onValueChange={(value) => {
+                    setSelectedProjectId(value);
+                    setSelectedFloorId(""); // Reset floor selection
+                  }}
+                  disabled={projectsLoading}
+                >
+                  <SelectTrigger id="project-select">
+                    <SelectValue placeholder="Sélectionnez un projet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects?.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.title} ({project.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="floor-select">Floor</Label>
+                <Select
+                  value={selectedFloorId}
+                  onValueChange={setSelectedFloorId}
+                  disabled={!selectedProjectId || floorsLoading}
+                >
+                  <SelectTrigger id="floor-select">
+                    <SelectValue placeholder="Tous les Floors" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Tous les Floors</SelectItem>
+                    {floors?.map((floor) => (
+                      <SelectItem key={floor.id} value={floor.id}>
+                        {floor.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Search & Filters */}
+            {selectedProjectId && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t">
+                {/* Search */}
+                <div className="sm:col-span-1 space-y-2">
+                  <Label htmlFor="search">
+                    <Search className="inline h-4 w-4 mr-1" />
+                    Recherche
+                  </Label>
+                  <Input
+                    id="search"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Titre ou user story..."
+                  />
+                </div>
+
+                {/* Status Filter */}
+                <div className="space-y-2">
+                  <Label htmlFor="status-filter">Statut</Label>
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value) =>
+                      setStatusFilter(value as QuestStatus | "ALL")
+                    }
+                  >
+                    <SelectTrigger id="status-filter">
+                      <SelectValue placeholder="Tous" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">Tous</SelectItem>
+                      <SelectItem value={QuestStatus.TODO}>À faire</SelectItem>
+                      <SelectItem value={QuestStatus.IN_PROGRESS}>
+                        En cours
+                      </SelectItem>
+                      <SelectItem value={QuestStatus.TESTING}>Tests</SelectItem>
+                      <SelectItem value={QuestStatus.DONE}>Terminée</SelectItem>
+                      <SelectItem value={QuestStatus.BLOCKED}>
+                        Bloquée
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Priority Filter */}
+                <div className="space-y-2">
+                  <Label htmlFor="priority-filter">Priorité</Label>
+                  <Select
+                    value={priorityFilter}
+                    onValueChange={(value) =>
+                      setPriorityFilter(value as Priority | "ALL")
+                    }
+                  >
+                    <SelectTrigger id="priority-filter">
+                      <SelectValue placeholder="Toutes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">Toutes</SelectItem>
+                      <SelectItem value={Priority.LOW}>Basse</SelectItem>
+                      <SelectItem value={Priority.MEDIUM}>Moyenne</SelectItem>
+                      <SelectItem value={Priority.HIGH}>Haute</SelectItem>
+                      <SelectItem value={Priority.CRITICAL}>
+                        Critique
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             )}
-        </div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={filteredFloorQuests.map((q) => q.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="space-y-4">
-              {filteredFloorQuests.map((floorQuest) => (
-                <SortableFloorQuestCard
-                  key={floorQuest.id}
-                  floorQuest={floorQuest}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
 
-      {/* Form Modal */}
-      {showForm && selectedProjectId && selectedFloorId && (
-        <FloorQuestForm
-          floorQuest={editingQuest}
-          projectId={selectedProjectId}
-          floorId={selectedFloorId}
-          existingFloorQuests={localFloorQuests}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingQuest(undefined);
-          }}
-          isLoading={createMutation.loading || updateMutation.loading}
-        />
-      )}
+            {/* Create Button */}
+            {selectedProjectId && selectedFloorId && (
+              <div className="flex justify-end pt-4 border-t">
+                <Button
+                  onClick={handleCreate}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle Quête
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Statistics */}
+        {selectedProjectId && localFloorQuests.length > 0 && (
+          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Target className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold">{stats.total}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">En cours</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {stats.inProgress}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Terminées</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {stats.done}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Pomodoros Est.
+                  </p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {stats.totalEstimatedPomodoros}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Content */}
+        {!selectedProjectId ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez un projet pour voir les Floor Quests
+              </p>
+            </CardContent>
+          </Card>
+        ) : !selectedFloorId ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Building2 className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez un Floor pour voir ses quêtes
+              </p>
+            </CardContent>
+          </Card>
+        ) : floorQuestsLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-orange-600 mb-4" />
+            <p className="text-muted-foreground">Chargement des quêtes...</p>
+          </div>
+        ) : filteredFloorQuests.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Target className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <p className="text-lg text-muted-foreground mb-4">
+                {searchQuery ||
+                statusFilter !== "ALL" ||
+                priorityFilter !== "ALL"
+                  ? "Aucune quête ne correspond aux filtres"
+                  : "Aucune quête dans ce Floor"}
+              </p>
+              {!searchQuery &&
+                statusFilter === "ALL" &&
+                priorityFilter === "ALL" && (
+                  <Button
+                    onClick={handleCreate}
+                    variant="outline"
+                    className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Créer la première quête
+                  </Button>
+                )}
+            </CardContent>
+          </Card>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={filteredFloorQuests.map((q) => q.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4">
+                {filteredFloorQuests.map((floorQuest) => (
+                  <SortableFloorQuestCard
+                    key={floorQuest.id}
+                    floorQuest={floorQuest}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {/* Form Modal */}
+        {showForm && selectedProjectId && selectedFloorId && (
+          <FloorQuestForm
+            floorQuest={editingQuest}
+            projectId={selectedProjectId}
+            floorId={selectedFloorId}
+            existingFloorQuests={localFloorQuests}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingQuest(undefined);
+            }}
+            isLoading={createMutation.loading || updateMutation.loading}
+          />
+        )}
+      </div>
     </div>
   );
 }

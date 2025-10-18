@@ -3,8 +3,19 @@
 import { useState, useMemo } from "react";
 import { Quest, QuestStatus, Priority } from "@/types/api";
 import { QuestCard } from "./QuestCard";
-import { HiFilter, HiSearch, HiPlus } from "react-icons/hi";
-import clsx from "clsx";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Filter, Search, Plus, Loader2, AlertTriangle, X } from "lucide-react";
+// cn utility not used here
 
 interface QuestsListProps {
   quests: Quest[];
@@ -59,15 +70,21 @@ export function QuestsList({
   const { filteredQuests, statusFiltersWithCounts, priorityFiltersWithCounts } =
     useMemo(() => {
       // Count quests by status and priority
-      const statusCounts = quests.reduce((acc, quest) => {
-        acc[quest.status] = (acc[quest.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const statusCounts = quests.reduce(
+        (acc, quest) => {
+          acc[quest.status] = (acc[quest.status] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-      const priorityCounts = quests.reduce((acc, quest) => {
-        acc[quest.priority] = (acc[quest.priority] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const priorityCounts = quests.reduce(
+        (acc, quest) => {
+          acc[quest.priority] = (acc[quest.priority] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       // Update filter options with counts
       const statusFiltersWithCounts = STATUS_FILTERS.map((filter) => ({
@@ -98,8 +115,8 @@ export function QuestsList({
             quest.userStory.toLowerCase().includes(search) ||
             (quest.definitionOfDone &&
               quest.definitionOfDone.some((item) =>
-                item.toLowerCase().includes(search)
-              ))
+                item.toLowerCase().includes(search),
+              )),
         );
       }
 
@@ -111,7 +128,7 @@ export function QuestsList({
       // Priority filter
       if (priorityFilter !== "all") {
         filtered = filtered.filter(
-          (quest) => quest.priority === priorityFilter
+          (quest) => quest.priority === priorityFilter,
         );
       }
 
@@ -156,10 +173,8 @@ export function QuestsList({
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
-        <p className="mt-4 text-gray-600 dark:text-gray-400">
-          Chargement des quêtes...
-        </p>
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+        <p className="mt-4 text-muted-foreground">Chargement des quêtes...</p>
       </div>
     );
   }
@@ -170,156 +185,152 @@ export function QuestsList({
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
               type="text"
               placeholder="Rechercher une quête..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="pl-10"
             />
           </div>
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
+            variant={showFilters ? "default" : "outline"}
             onClick={() => setShowFilters(!showFilters)}
-            className={clsx(
-              "flex items-center gap-2 px-4 py-2 rounded-md border transition-colors",
-              showFilters
-                ? "bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300"
-                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
-            )}
           >
-            <HiFilter className="h-5 w-5" />
+            <Filter className="h-4 w-4 mr-2" />
             Filtres
-          </button>
+          </Button>
 
-          <button
-            onClick={onCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <HiPlus className="h-5 w-5" />
+          <Button onClick={onCreate}>
+            <Plus className="h-4 w-4 mr-2" />
             Nouvelle quête
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Statut
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                {statusFiltersWithCounts.map((filter) => (
-                  <option key={filter.value} value={filter.value}>
-                    {filter.label} ({filter.count})
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Status Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="status-filter">Statut</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger id="status-filter">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusFiltersWithCounts.map((filter) => (
+                      <SelectItem key={filter.value} value={filter.value}>
+                        {filter.label} ({filter.count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Priority Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Priorité
-              </label>
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                {priorityFiltersWithCounts.map((filter) => (
-                  <option key={filter.value} value={filter.value}>
-                    {filter.label} ({filter.count})
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Priority Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="priority-filter">Priorité</Label>
+                <Select
+                  value={priorityFilter}
+                  onValueChange={setPriorityFilter}
+                >
+                  <SelectTrigger id="priority-filter">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {priorityFiltersWithCounts.map((filter) => (
+                      <SelectItem key={filter.value} value={filter.value}>
+                        {filter.label} ({filter.count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Sort */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Trier par
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {/* Sort */}
+              <div className="space-y-2">
+                <Label htmlFor="sort-by">Trier par</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger id="sort-by">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SORT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Results Info */}
-      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {filteredQuests.length} quête{filteredQuests.length !== 1 ? "s" : ""}
           {filteredQuests.length !== quests.length && ` sur ${quests.length}`}
         </span>
 
         {(searchTerm || statusFilter !== "all" || priorityFilter !== "all") && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setSearchTerm("");
               setStatusFilter("all");
               setPriorityFilter("all");
             }}
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
+            <X className="h-4 w-4 mr-2" />
             Réinitialiser les filtres
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Quests Grid */}
       {filteredQuests.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-          {quests.length === 0 ? (
-            <>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Aucune quête dans cette zone
-              </p>
-              <button
-                onClick={onCreate}
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Créer la première quête
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Aucune quête ne correspond aux filtres
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                  setPriorityFilter("all");
-                }}
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Réinitialiser les filtres
-              </button>
-            </>
-          )}
-        </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            {quests.length === 0 ? (
+              <>
+                <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground mb-4">
+                  Aucune quête dans cette zone
+                </p>
+                <Button onClick={onCreate}>Créer la première quête</Button>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground mb-4">
+                  Aucune quête ne correspond aux filtres
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setStatusFilter("all");
+                    setPriorityFilter("all");
+                  }}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Réinitialiser les filtres
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredQuests.map((quest) => (

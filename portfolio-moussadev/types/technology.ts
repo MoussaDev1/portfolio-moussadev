@@ -61,7 +61,15 @@ export interface CreateTechnologyDto {
   websiteUrl?: string;
 }
 
-export interface UpdateTechnologyDto extends Partial<CreateTechnologyDto> {}
+export interface UpdateTechnologyDto {
+  name?: string;
+  slug?: string;
+  category?: TechCategory;
+  status?: TechStatus;
+  description?: string;
+  iconUrl?: string;
+  websiteUrl?: string;
+}
 
 export interface TechRadarStats {
   total: number;

@@ -1,4 +1,6 @@
 // Types synchronisés avec le backend NestJS + Prisma
+import { Technology } from "./technology";
+
 export enum ProjectType {
   ZONE_SYSTEM = "ZONE_SYSTEM",
   FLOOR_SYSTEM = "FLOOR_SYSTEM",
@@ -36,16 +38,6 @@ export enum Priority {
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
   CRITICAL = "CRITICAL",
-}
-
-export interface Technology {
-  id: string;
-  name: string;
-  category: string;
-  status: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Zone {
@@ -130,6 +122,7 @@ export interface Project {
 
   // Images et liens
   thumbnailUrl?: string;
+  galleryImages?: string[];
   demoUrl?: string;
   githubUrl?: string;
   caseStudyUrl?: string;
@@ -165,6 +158,7 @@ export interface CreateProjectDto {
   featured?: boolean;
   category?: string;
   thumbnailUrl?: string;
+  galleryImages?: string[];
   demoUrl?: string;
   githubUrl?: string;
   caseStudyUrl?: string;
@@ -176,7 +170,27 @@ export interface CreateProjectDto {
   technologyIds?: string[];
 }
 
-export interface UpdateProjectDto extends Partial<CreateProjectDto> {}
+export interface UpdateProjectDto {
+  slug?: string;
+  title?: string;
+  description?: string;
+  fullDescription?: string;
+  type?: ProjectType;
+  status?: ProjectStatus;
+  featured?: boolean;
+  category?: string;
+  thumbnailUrl?: string;
+  galleryImages?: string[];
+  demoUrl?: string;
+  githubUrl?: string;
+  caseStudyUrl?: string;
+  highlights?: string[];
+  challenges?: string[];
+  learnings?: string[];
+  duration?: string;
+  teamSize?: number;
+  technologyIds?: string[];
+}
 
 export interface CreateZoneDto {
   name: string;

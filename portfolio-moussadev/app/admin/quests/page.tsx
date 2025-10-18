@@ -11,7 +11,24 @@ import { Quest, QuestStatus } from "@/types/api";
 import { CreateZoneQuestDto, UpdateZoneQuestDto } from "@/types/forms";
 import { QuestsList } from "@/components/admin/quests/QuestsList";
 import { QuestForm } from "@/components/admin/quests/QuestForm";
-import { HiFilter, HiChartBar } from "react-icons/hi";
+import {
+  Target,
+  Castle,
+  Loader2,
+  AlertTriangle,
+  CheckCircle,
+  Activity,
+  TrendingUp,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminQuestsPage() {
   const searchParams = useSearchParams();
@@ -25,8 +42,9 @@ export default function AdminQuestsPage() {
   const { zones, loading: zonesLoading } = useZones(selectedProjectId || "");
 
   // Récupérer toutes les quêtes du projet pour les stats
-  const { quests: allProjectQuests, loading: allQuestsLoading } =
-    useProjectQuests(selectedProjectId || "");
+  const { quests: allProjectQuests } = useProjectQuests(
+    selectedProjectId || "",
+  );
 
   // Récupérer les quests de la zone sélectionnée
   const {
@@ -41,14 +59,14 @@ export default function AdminQuestsPage() {
       apiClient.createZoneQuest(
         selectedProjectId || "",
         selectedZoneId || "",
-        data
+        data,
       ),
     {
       onSuccess: () => {
         setShowForm(false);
         refetch();
       },
-    }
+    },
   );
 
   const updateMutation = useMutation(
@@ -57,7 +75,7 @@ export default function AdminQuestsPage() {
         selectedProjectId || "",
         selectedZoneId || "",
         id,
-        data
+        data,
       ),
     {
       onSuccess: () => {
@@ -65,7 +83,7 @@ export default function AdminQuestsPage() {
         setEditingQuest(undefined);
         refetch();
       },
-    }
+    },
   );
 
   const deleteMutation = useMutation(
@@ -73,13 +91,13 @@ export default function AdminQuestsPage() {
       apiClient.deleteZoneQuest(
         selectedProjectId || "",
         selectedZoneId || "",
-        id
+        id,
       ),
     {
       onSuccess: () => {
         refetch();
       },
-    }
+    },
   );
 
   // Gérer les paramètres URL pour pré-sélection
@@ -97,7 +115,7 @@ export default function AdminQuestsPage() {
         .find((z) => z.id === urlZoneId);
       if (zone) {
         const project = projects.find((p) =>
-          p.zones?.some((z) => z.id === urlZoneId)
+          p.zones?.some((z) => z.id === urlZoneId),
         );
         if (project) {
           setSelectedProjectId(project.id);
@@ -162,7 +180,7 @@ export default function AdminQuestsPage() {
   };
 
   const handleSubmit = async (
-    data: CreateZoneQuestDto | UpdateZoneQuestDto
+    data: CreateZoneQuestDto | UpdateZoneQuestDto,
   ) => {
     if (editingQuest) {
       await updateMutation.mutate({ id: editingQuest.id, data });
@@ -178,10 +196,10 @@ export default function AdminQuestsPage() {
   const zoneStats =
     zones?.map((zone) => {
       const zoneQuests = allProjectQuests.filter(
-        (quest) => quest.zoneId === zone.id
+        (quest) => quest.zoneId === zone.id,
       );
       const completedQuests = zoneQuests.filter(
-        (quest) => quest.status === QuestStatus.DONE
+        (quest) => quest.status === QuestStatus.DONE,
       );
       return {
         ...zone,
@@ -195,152 +213,172 @@ export default function AdminQuestsPage() {
     }) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Gestion des Quêtes
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Gérez vos quêtes par zone pour un suivi détaillé
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Target className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                Gestion des Quêtes
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Gérez vos quêtes par zone pour un suivi détaillé
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Filters & Selection */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Project Filter */}
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <HiFilter className="inline h-4 w-4 mr-1" />
-                Projet
-              </label>
-              <select
-                value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={projectsLoading}
-              >
-                <option value="">Sélectionnez un projet</option>
-                {projects?.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Project Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="project-select">Projet</Label>
+                <Select
+                  value={selectedProjectId}
+                  onValueChange={setSelectedProjectId}
+                  disabled={projectsLoading}
+                >
+                  <SelectTrigger id="project-select">
+                    <SelectValue placeholder="Sélectionnez un projet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects?.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Zone Filter */}
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <HiChartBar className="inline h-4 w-4 mr-1" />
-                Zone
-              </label>
-              <select
-                value={selectedZoneId}
-                onChange={(e) => setSelectedZoneId(e.target.value)}
-                className="px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={zonesLoading || !selectedProjectId}
-              >
-                <option value="">Sélectionnez une zone</option>
-                {zones?.map((zone) => {
-                  const stats = zoneStats.find((s) => s.id === zone.id);
-                  return (
-                    <option key={zone.id} value={zone.id}>
-                      {zone.name} ({stats?.totalQuests || 0} quêtes,{" "}
-                      {stats?.completionPercentage || 0}% terminé)
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div>
-
-          {/* Zone Stats */}
-          {selectedZoneId && (
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {zoneStats
-                  .filter((zone) => zone.id === selectedZoneId)
-                  .map((zone) => (
-                    <div key={zone.id} className="text-center">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {zone.totalQuests}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Total Quêtes
-                      </div>
-                    </div>
-                  ))}
-
-                {zoneStats
-                  .filter((zone) => zone.id === selectedZoneId)
-                  .map((zone) => (
-                    <div key={`completed-${zone.id}`} className="text-center">
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {zone.completedQuests}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Terminées
-                      </div>
-                    </div>
-                  ))}
-
-                {zoneStats
-                  .filter((zone) => zone.id === selectedZoneId)
-                  .map((zone) => (
-                    <div key={`progress-${zone.id}`} className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                        {
-                          quests.filter(
-                            (q) => q.status === QuestStatus.IN_PROGRESS
-                          ).length
-                        }
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        En Cours
-                      </div>
-                    </div>
-                  ))}
-
-                {zoneStats
-                  .filter((zone) => zone.id === selectedZoneId)
-                  .map((zone) => (
-                    <div key={`percentage-${zone.id}`} className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        {zone.completionPercentage}%
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Progression
-                      </div>
-                    </div>
-                  ))}
+              {/* Zone Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="zone-select">Zone</Label>
+                <Select
+                  value={selectedZoneId}
+                  onValueChange={setSelectedZoneId}
+                  disabled={zonesLoading || !selectedProjectId}
+                >
+                  <SelectTrigger id="zone-select">
+                    <SelectValue placeholder="Sélectionnez une zone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zones?.map((zone) => {
+                      const stats = zoneStats.find((s) => s.id === zone.id);
+                      return (
+                        <SelectItem key={zone.id} value={zone.id}>
+                          {zone.name} ({stats?.totalQuests || 0} quêtes,{" "}
+                          {stats?.completionPercentage || 0}% terminé)
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Zone Stats */}
+            {selectedZoneId &&
+              zoneStats
+                .filter((zone) => zone.id === selectedZoneId)
+                .map((zone) => (
+                  <div key={zone.id} className="border-t pt-4 mt-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Target className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold">
+                            {zone.totalQuests}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Total Quêtes
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-500/10 rounded-lg">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-green-600">
+                            {zone.completedQuests}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Terminées
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-yellow-500/10 rounded-lg">
+                          <Activity className="h-5 w-5 text-yellow-600" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-yellow-600">
+                            {
+                              quests.filter(
+                                (q) => q.status === QuestStatus.IN_PROGRESS,
+                              ).length
+                            }
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            En Cours
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-500/10 rounded-lg">
+                          <TrendingUp className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-purple-600">
+                            {zone.completionPercentage}%
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Progression
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+          </CardContent>
+        </Card>
 
         {/* Quests List */}
         {questsLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Chargement des quêtes...
-            </p>
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Chargement des quêtes...</p>
           </div>
         ) : !selectedProjectId ? (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
-              Sélectionnez un projet pour voir ses quêtes
-            </p>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez un projet pour voir ses quêtes
+              </p>
+            </CardContent>
+          </Card>
         ) : !selectedZoneId ? (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
-              Sélectionnez une zone pour voir ses quêtes
-            </p>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Castle className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez une zone pour voir ses quêtes
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <QuestsList
             quests={quests}

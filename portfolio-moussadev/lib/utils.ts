@@ -1,5 +1,8 @@
-export function cn(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(" ");
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: string): string {
@@ -18,7 +21,7 @@ export function formatDateShort(date: string): string {
 }
 
 export function getProjectStatusText(
-  status: "completed" | "in_progress" | "planned"
+  status: "completed" | "in_progress" | "planned",
 ): string {
   switch (status) {
     case "completed":
@@ -33,7 +36,7 @@ export function getProjectStatusText(
 }
 
 export function getProjectStatusColor(
-  status: "completed" | "in_progress" | "planned"
+  status: "completed" | "in_progress" | "planned",
 ): string {
   switch (status) {
     case "completed":

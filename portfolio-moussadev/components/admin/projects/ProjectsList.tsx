@@ -4,6 +4,36 @@ import { useState } from "react";
 import { Project, ProjectType, ProjectStatus } from "@/types/api";
 import { useMutation } from "@/lib/hooks/useMutation";
 import { apiClient } from "@/lib/api";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Castle,
+  Building2,
+  Calendar,
+  Loader2,
+  AlertTriangle,
+} from "lucide-react";
 
 interface ProjectsListProps {
   projects: Project[];
@@ -19,17 +49,22 @@ export default function ProjectsList({
   onRefresh,
 }: ProjectsListProps) {
   const [filter, setFilter] = useState<"all" | ProjectType | ProjectStatus>(
-    "all"
+    "all",
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    project: Project | null;
+  }>({ open: false, project: null });
 
   const { mutate: deleteProject, loading: deleting } = useMutation(
     (id: string) => apiClient.deleteProject(id),
     {
       onSuccess: () => {
-        onRefresh(); // Refresh automatique après suppression
+        setDeleteDialog({ open: false, project: null });
+        onRefresh();
       },
-    }
+    },
   );
 
   const filteredProjects = projects.filter((project) => {
@@ -45,155 +80,233 @@ export default function ProjectsList({
     return false;
   });
 
-  const handleDelete = async (project: Project) => {
-    if (
-      window.confirm(
-        `Êtes-vous sûr de vouloir supprimer le projet "${project.title}" ?`
-      )
-    ) {
-      await deleteProject(project.id);
-      // Le refresh est automatique via onSuccess
+  const handleDeleteClick = (project: Project) => {
+    setDeleteDialog({ open: true, project });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteDialog.project) {
+      await deleteProject(deleteDialog.project.id);
     }
   };
 
-  const getStatusBadge = (status: ProjectStatus) => {
-    const badges = {
-      [ProjectStatus.PLANNING]:
-        "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-      [ProjectStatus.ACTIVE]:
-        "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      [ProjectStatus.COMPLETED]:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      [ProjectStatus.PAUSED]:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+  const getStatusVariant = (
+    status: ProjectStatus,
+  ): "default" | "secondary" | "destructive" | "outline" => {
+    const variants = {
+      [ProjectStatus.PLANNING]: "secondary" as const,
+      [ProjectStatus.ACTIVE]: "default" as const,
+      [ProjectStatus.COMPLETED]: "outline" as const,
+      [ProjectStatus.PAUSED]: "destructive" as const,
     };
-    return badges[status] || badges[ProjectStatus.PLANNING];
+    return variants[status] || "secondary";
+  };
+
+  const getStatusLabel = (status: ProjectStatus) => {
+    const labels = {
+      [ProjectStatus.PLANNING]: "Planning",
+      [ProjectStatus.ACTIVE]: "En Cours",
+      [ProjectStatus.COMPLETED]: "Terminé",
+      [ProjectStatus.PAUSED]: "En Pause",
+    };
+    return labels[status] || status;
   };
 
   const getTypeIcon = (type: ProjectType) => {
-    return type === ProjectType.ZONE_SYSTEM ? "🏯" : "🏢";
+    return type === ProjectType.ZONE_SYSTEM ? (
+      <Castle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+    ) : (
+      <Building2 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+    );
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          📋 Gestion des Projets ({filteredProjects.length})
-        </h2>
-      </div>
-
-      {/* Filtres et Recherche */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Rechercher un projet..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+    <>
+      <div className="space-y-6">
+        {/* Filtres et Recherche */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Rechercher un projet..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select
+            value={filter}
+            onValueChange={(value) => setFilter(value as typeof filter)}
+          >
+            <SelectTrigger className="w-full sm:w-[220px]">
+              <SelectValue placeholder="Filtrer par..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les projets</SelectItem>
+              <SelectItem value={ProjectType.ZONE_SYSTEM}>
+                Zone System
+              </SelectItem>
+              <SelectItem value={ProjectType.FLOOR_SYSTEM}>
+                Floor System
+              </SelectItem>
+              <SelectItem value={ProjectStatus.PLANNING}>Planning</SelectItem>
+              <SelectItem value={ProjectStatus.ACTIVE}>En Cours</SelectItem>
+              <SelectItem value={ProjectStatus.COMPLETED}>Terminés</SelectItem>
+              <SelectItem value={ProjectStatus.PAUSED}>En Pause</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as typeof filter)}
-          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <option value="all">Tous les projets</option>
-          <option value={ProjectType.ZONE_SYSTEM}>🏯 Zone System</option>
-          <option value={ProjectType.FLOOR_SYSTEM}>🏢 Floor System</option>
-          <option value={ProjectStatus.PLANNING}>📋 Planning</option>
-          <option value={ProjectStatus.ACTIVE}>🚀 En Cours</option>
-          <option value={ProjectStatus.COMPLETED}>✅ Terminés</option>
-          <option value={ProjectStatus.PAUSED}>⏸️ En Pause</option>
-        </select>
-      </div>
 
-      {/* Liste des Projets */}
-      {filteredProjects.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
-            {searchTerm || filter !== "all"
-              ? "Aucun projet ne correspond aux critères."
-              : "Aucun projet trouvé."}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredProjects.map((project) => (
-            <div
-              key={project.id}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl">
-                      {getTypeIcon(project.type)}
-                    </span>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      {project.title}
-                    </h3>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
-                        project.status
-                      )}`}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
+        {/* Liste des Projets */}
+        {filteredProjects.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground text-center">
+                {searchTerm || filter !== "all"
+                  ? "Aucun projet ne correspond aux critères."
+                  : "Aucun projet trouvé."}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {filteredProjects.map((project) => (
+              <Card
+                key={project.id}
+                className="border-2 hover:border-primary/50 transition-all hover:shadow-lg"
+              >
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
+                    {/* Contenu principal */}
+                    <div className="flex-1 space-y-3">
+                      {/* Header avec titre et statut */}
+                      <div className="flex items-start gap-3 flex-wrap">
+                        {getTypeIcon(project.type)}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-semibold mb-1 break-words">
+                            {project.title}
+                          </h3>
+                          <Badge variant={getStatusVariant(project.status)}>
+                            {getStatusLabel(project.status)}
+                          </Badge>
+                        </div>
+                      </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                    {project.description}
-                  </p>
+                      {/* Description */}
+                      <p className="text-muted-foreground line-clamp-2">
+                        {project.description}
+                      </p>
 
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {project.technologies &&
-                      project.technologies.map((tech) => (
-                        <span
-                          key={tech.technology.id}
-                          className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded text-xs"
-                        >
-                          {tech.technology.name}
+                      {/* Technologies */}
+                      {project.technologies &&
+                        project.technologies.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {project.technologies.map((tech) => (
+                              <Badge
+                                key={tech.technology.id}
+                                variant="secondary"
+                              >
+                                {tech.technology.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+
+                      {/* Stats */}
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Castle className="h-4 w-4" />
+                          {project.zones?.length || 0} zones
                         </span>
-                      ))}
-                  </div>
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-4 w-4" />
+                          {project.floors?.length || 0} floors
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(project.createdAt).toLocaleDateString(
+                            "fr-FR",
+                          )}
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Zones: {project.zones?.length || 0}</span>
-                    <span>Floors: {project.floors?.length || 0}</span>
-                    <span>
-                      Créé:{" "}
-                      {new Date(project.createdAt).toLocaleDateString("fr-FR")}
-                    </span>
+                    {/* Actions */}
+                    <div className="flex lg:flex-col gap-2 justify-end">
+                      <Button
+                        onClick={() => onSelectProject(project)}
+                        variant="default"
+                        size="sm"
+                        className="flex-1 lg:flex-none"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Gérer
+                      </Button>
+                      <Button
+                        onClick={() => onEditProject(project)}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 lg:flex-none"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Modifier
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteClick(project)}
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleting}
+                        className="flex-1 lg:flex-none"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Supprimer
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
-                <div className="flex flex-col gap-2 ml-4">
-                  <button
-                    onClick={() => onSelectProject(project)}
-                    className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm"
-                  >
-                    📝 Gérer
-                  </button>
-                  <button
-                    onClick={() => onEditProject(project)}
-                    className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 rounded text-sm"
-                  >
-                    ✏️ Modifier
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project)}
-                    disabled={deleting}
-                    className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 rounded text-sm disabled:opacity-50"
-                  >
-                    🗑️ Suppr.
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      {/* Dialog de confirmation de suppression */}
+      <Dialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          !deleting && setDeleteDialog({ open, project: null })
+        }
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer le projet{" "}
+              <strong>&quot;{deleteDialog.project?.title}&quot;</strong> ? Cette
+              action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialog({ open: false, project: null })}
+              disabled={deleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+            >
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -21,13 +21,11 @@ export default function QuestForm({
   const [formData, setFormData] = useState<CreateQuestDto>({
     title: "",
     userStory: "",
-    acceptanceCriteria: "",
     definitionOfDone: "",
     manualTests: "",
-    technicalDebt: "",
+    techDebt: "",
     priority: Priority.MEDIUM,
-    estimatedPomodoros: 1,
-    order: 1,
+    estimatedHours: 1,
   });
 
   const {

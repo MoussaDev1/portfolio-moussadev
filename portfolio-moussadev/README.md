@@ -23,30 +23,51 @@ Portfolio personnel moderne développé avec Next.js 15, TypeScript et Tailwind 
 
 ## 🏗️ Structure du projet
 
-```
 portfolio-moussadev/
-├── app/                          # App Router (Next.js 13+)
-│   ├── api/projects/            # Routes API pour les projets
-│   ├── projects/                # Pages des projets
-│   ├── globals.css              # Styles globaux
-│   ├── layout.tsx               # Layout principal
-│   ├── page.tsx                 # Page d'accueil
-│   └── not-found.tsx           # Page 404 personnalisée
-├── components/                  # Composants réutilisables
-│   ├── Header.tsx              # En-tête de navigation
-│   ├── Footer.tsx              # Pied de page
-│   └── ProjectCard.tsx         # Carte de projet
-├── data/                       # Données statiques
-│   ├── projects.json           # Base de données des projets
-│   └── config.json             # Configuration du site
-├── lib/                        # Utilitaires et helpers
-│   ├── projects.ts             # Fonctions de gestion des projets
-│   └── utils.ts                # Utilitaires généraux
-├── types/                      # Types TypeScript
-│   └── index.ts                # Définitions de types
-└── public/                     # Assets statiques
-    └── images/                 # Images des projets
-```
+├── app/ # App Router (Next.js 13+)
+│ ├── api/projects/ # Routes API pour les projets
+│ ├── projects/ # Pages des projets
+│ ├── globals.css # Styles globaux
+│ ├── layout.tsx # Layout principal
+│ ├── page.tsx # Page d'accueil
+│ └── not-found.tsx # Page 404 personnalisée
+├── components/ # Composants réutilisables
+│ ├── Header.tsx # En-tête de navigation
+│ ├── Footer.tsx # Pied de page
+│ └── ProjectCard.tsx # Carte de projet
+├── data/ # Données statiques
+│ ├── projects.json # Base de données des projets
+│ └── config.json # Configuration du site
+├── lib/ # Utilitaires et helpers
+│ ├── projects.ts # Fonctions de gestion des projets
+│ └── utils.ts # Utilitaires généraux
+├── types/ # Types TypeScript
+│ └── index.ts # Définitions de types
+└── public/ # Assets statiques
+└── images/ # Images des projets
+
+portfolio-moussadev/
+├── app/ # App Router (Next.js 13+)
+│ ├── api/projects/ # Routes API pour les projets
+│ ├── projects/ # Pages des projets
+│ ├── globals.css # Styles globaux
+│ ├── layout.tsx # Layout principal
+│ ├── page.tsx # Page d'accueil
+│ └── not-found.tsx # Page 404 personnalisée
+├── components/ # Composants réutilisables
+│ ├── Header.tsx # En-tête de navigation
+│ ├── Footer.tsx # Pied de page
+│ └── ProjectCard.tsx # Carte de projet
+├── data/ # Données statiques
+│ ├── projects.json # Base de données des projets
+│ └── config.json # Configuration du site
+├── lib/ # Utilitaires et helpers
+│ ├── projects.ts # Fonctions de gestion des projets
+│ └── utils.ts # Utilitaires généraux
+├── types/ # Types TypeScript
+│ └── index.ts # Définitions de types
+└── public/ # Assets statiques
+└── images/ # Images des projets
 
 ## 🚀 Installation et développement
 
@@ -101,14 +122,12 @@ Le dashboard admin (`/admin/*`) est protégé par **authentification JWT sécuri
    ```
 
 2. **Accéder au dashboard** :
-
    - Naviguer vers [http://localhost:3000/admin](http://localhost:3000/admin)
    - Vous serez redirigé vers `/admin/login`
    - Entrer le mot de passe défini dans `.env.local`
    - Un **token JWT signé** sera créé et stocké dans un cookie HttpOnly
 
 3. **🔒 Sécurité JWT** :
-
    - Les tokens sont **signés cryptographiquement** avec HS256
    - Validation automatique par le middleware (expiration, signature)
    - Protection XSS : cookie HttpOnly (inaccessible au JavaScript)

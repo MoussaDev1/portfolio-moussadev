@@ -13,14 +13,14 @@ export async function POST(request: NextRequest) {
       console.error("⚠️ ADMIN_PASSWORD n'est pas défini dans .env");
       return NextResponse.json(
         { error: "Configuration serveur incorrecte" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (password !== adminPassword) {
       return NextResponse.json(
         { error: "Mot de passe incorrect" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 

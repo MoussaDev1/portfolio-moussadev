@@ -321,6 +321,8 @@ export default function ProjectDetails({
                           setShowQuestForm({ type: "zone", id: zone.id })
                         }
                         type="zone"
+                        projectId={project.id}
+                        zoneId={zone.id}
                       />
                     )}
                   </div>
@@ -418,6 +420,8 @@ export default function ProjectDetails({
                           setShowQuestForm({ type: "floor", id: floor.id })
                         }
                         type="floor"
+                        projectId={project.id}
+                        floorId={floor.id}
                       />
                     )}
                   </div>

@@ -21,7 +21,6 @@
 ### **En ligne (gratuit)**
 
 1. **TinyPNG** - https://tinypng.com
-
    - Compression intelligente
    - Préserve la qualité
    - Réduit jusqu'à 70% la taille

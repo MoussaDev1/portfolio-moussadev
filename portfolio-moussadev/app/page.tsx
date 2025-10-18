@@ -1,275 +1,277 @@
 import Link from "next/link";
-import Header from "@/components/public/Header";
+import {
+  ArrowRight,
+  Code2,
+  Cloud,
+  Sparkles,
+  Radar,
+  Database,
+} from "lucide-react";
+import Header from "@/components/Header";
 import Footer from "@/components/public/Footer";
 import ProjectCard from "@/components/public/ProjectCard";
-import { Project } from "@/types/api";
-// import { getFeaturedProjects } from "@/lib/projects";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { getFeaturedProjects } from "@/lib/projects";
+import { generatePersonJsonLd, generateWebsiteJsonLd } from "@/lib/seo";
 
 export default async function Home() {
-  // const featuredProjects = await getFeaturedProjects();
-  const featuredProjects: Project[] = []; // Placeholder temporaire - aucun projet pour l'instant
+  const allFeaturedProjects = await getFeaturedProjects();
+  // Limiter à 3 projets sur la homepage
+  const featuredProjects = allFeaturedProjects.slice(0, 3);
+
+  const personJsonLd = generatePersonJsonLd();
+  const websiteJsonLd = generateWebsiteJsonLd();
 
   return (
     <div className="min-h-screen bg-background">
+      {/* JSON-LD pour le SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+
       <Header />
 
       <main>
         {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
-            <div className="text-center">
-              <h1 className="text-4xl sm:text-6xl font-bold text-foreground mb-6">
-                Salut, je suis{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  MoussaDev
+        <section className="relative overflow-hidden border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+            <div className="text-center space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-muted/50 text-sm">
+                <Sparkles className="w-4 h-4" />
+                <span>Disponible pour de nouveaux projets</span>
+              </div>
+
+              <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">
+                Développeur{" "}
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Full-Stack
                 </span>
               </h1>
 
-              <p className="text-xl sm:text-2xl text-foreground/70 mb-8 max-w-3xl mx-auto">
-                Développeur Full-Stack passionné par la création
-                d&apos;applications web modernes, performantes et centrées sur
-                l&apos;expérience utilisateur.
+              <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Je crée des applications web modernes, performantes et centrées
+                sur l&apos;expérience utilisateur avec les dernières
+                technologies.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link
-                  href="/projects"
-                  className="bg-foreground text-background hover:bg-foreground/90 px-8 py-3 rounded-lg font-medium transition-colors"
-                >
-                  Découvrir mes projets
-                </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+                <Button size="lg" asChild>
+                  <Link href="/projects">
+                    Découvrir mes projets
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
 
-                <a
-                  href="#contact"
-                  className="border border-foreground/20 text-foreground hover:bg-foreground/5 px-8 py-3 rounded-lg font-medium transition-colors"
-                >
-                  Me contacter
-                </a>
+                <Button size="lg" variant="outline" asChild>
+                  <a href="#contact">Me contacter</a>
+                </Button>
               </div>
             </div>
           </div>
 
           {/* Gradient background */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
           </div>
         </section>
 
         {/* Skills Section */}
-        <section className="py-20 bg-foreground/5">
+        <section className="py-24 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
                 Technologies & Compétences
               </h2>
-              <p className="text-foreground/70 max-w-2xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Je maîtrise un large éventail de technologies modernes pour
                 créer des solutions complètes et robustes.
               </p>
+              <div className="pt-4">
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/tech-radar">
+                    <Radar className="w-5 h-5 mr-2" />
+                    Voir mon Tech Radar complet
+                  </Link>
+                </Button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Frontend */}
-              <div className="bg-background rounded-lg p-6">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Frontend</h3>
-                <p className="text-foreground/70 text-sm mb-4">
-                  Interfaces utilisateur modernes et réactives
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["React", "Next.js", "TypeScript", "Tailwind CSS"].map(
-                    (tech) => (
-                      <span
-                        key={tech}
-                        className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-300 px-2 py-1 rounded"
-                      >
-                        {tech}
-                      </span>
-                    )
-                  )}
-                </div>
-              </div>
+              <Card className="border-2 hover:border-blue-500/50 transition-colors">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
+                    <Code2 className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <CardTitle>Frontend</CardTitle>
+                  <CardDescription>
+                    Interfaces utilisateur modernes et réactives
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {["React", "Next.js", "TypeScript", "Tailwind CSS"].map(
+                      (tech) => (
+                        <Badge key={tech} variant="secondary">
+                          {tech}
+                        </Badge>
+                      ),
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Backend */}
-              <div className="bg-background rounded-lg p-6">
-                <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Backend</h3>
-                <p className="text-foreground/70 text-sm mb-4">
-                  APIs robustes et bases de données performantes
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Node.js", "Python", "PostgreSQL", "MongoDB"].map(
-                    (tech) => (
-                      <span
-                        key={tech}
-                        className="text-xs bg-green-500/10 text-green-700 dark:text-green-300 px-2 py-1 rounded"
-                      >
-                        {tech}
-                      </span>
-                    )
-                  )}
-                </div>
-              </div>
+              <Card className="border-2 hover:border-green-500/50 transition-colors">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
+                    <Database className="w-6 h-6 text-green-600" />
+                  </div>
+                  <CardTitle>Backend</CardTitle>
+                  <CardDescription>
+                    APIs robustes et bases de données performantes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {["Node.js", "NestJS", "PostgreSQL", "Prisma"].map(
+                      (tech) => (
+                        <Badge key={tech} variant="secondary">
+                          {tech}
+                        </Badge>
+                      ),
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* DevOps */}
-              <div className="bg-background rounded-lg p-6">
-                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold mb-3">DevOps & Outils</h3>
-                <p className="text-foreground/70 text-sm mb-4">
-                  Déploiement et outils de développement
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Docker", "Vercel", "Git", "AWS"].map((tech) => (
-                    <span
-                      key={tech}
-                      className="text-xs bg-purple-500/10 text-purple-700 dark:text-purple-300 px-2 py-1 rounded"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <Card className="border-2 hover:border-purple-500/50 transition-colors">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+                    <Cloud className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <CardTitle>DevOps & Outils</CardTitle>
+                  <CardDescription>
+                    Déploiement et outils de développement
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {["Docker", "Vercel", "Git", "Railway"].map((tech) => (
+                      <Badge key={tech} variant="secondary">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
 
         {/* Featured Projects */}
-        <section className="py-20">
+        <section className="py-24 border-t">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                Projets mis en avant
-              </h2>
-              <p className="text-foreground/70 max-w-2xl mx-auto">
-                Découvrez une sélection de mes projets les plus aboutis et
-                représentatifs de mes compétences techniques.
-              </p>
+            <div className="flex items-center justify-between mb-12">
+              <div className="space-y-2">
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                  Projets mis en avant
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Découvrez une sélection de mes projets les plus aboutis
+                </p>
+              </div>
+              <Button variant="outline" asChild className="hidden sm:flex">
+                <Link href="/projects">
+                  Voir tous les projets
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
             </div>
 
             {featuredProjects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                {featuredProjects.map((project, index) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    priority={index < 2}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {featuredProjects.map((project, index) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      priority={index < 2}
+                    />
+                  ))}
+                </div>
+                <div className="text-center mt-12 sm:hidden">
+                  <Button variant="outline" asChild>
+                    <Link href="/projects">
+                      Voir tous les projets
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </>
             ) : (
-              <div className="text-center py-12">
-                <p className="text-foreground/60 mb-4">
-                  Aucun projet mis en avant pour le moment.
-                </p>
-                <Link
-                  href="/projects"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Voir tous les projets →
-                </Link>
-              </div>
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <p className="text-muted-foreground mb-4">
+                    Aucun projet mis en avant pour le moment.
+                  </p>
+                  <Button variant="outline" asChild>
+                    <Link href="/projects">
+                      Voir tous les projets
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             )}
-
-            <div className="text-center">
-              <Link
-                href="/projects"
-                className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
-              >
-                Voir tous les projets
-                <svg
-                  className="ml-1 w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            </div>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-20 bg-foreground/5">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Travaillons ensemble
-            </h2>
-            <p className="text-foreground/70 mb-8 max-w-2xl mx-auto">
-              Vous avez un projet en tête ? Je serais ravi d&apos;en discuter
-              avec vous et de voir comment nous pouvons créer quelque chose
-              d&apos;extraordinaire ensemble.
-            </p>
+        <section id="contact" className="py-24 bg-muted/30 border-t">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                Travaillons ensemble
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Vous avez un projet en tête ? Je serais ravi d&apos;en discuter
+                avec vous et de voir comment nous pouvons créer quelque chose
+                d&apos;extraordinaire ensemble.
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="mailto:contact@moussadev.com"
-                className="bg-foreground text-background hover:bg-foreground/90 px-8 py-3 rounded-lg font-medium transition-colors"
-              >
-                Me contacter par email
-              </a>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+                <Button size="lg" asChild>
+                  <a href="mailto:contact@moussadev.com">
+                    Me contacter par email
+                  </a>
+                </Button>
 
-              <a
-                href="https://linkedin.com/in/moussadev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border border-foreground/20 text-foreground hover:bg-foreground/5 px-8 py-3 rounded-lg font-medium transition-colors"
-              >
-                LinkedIn
-              </a>
+                <Button size="lg" variant="outline" asChild>
+                  <a
+                    href="https://linkedin.com/in/moussadev"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    LinkedIn
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </section>

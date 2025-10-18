@@ -1,10 +1,18 @@
 "use client";
 
 import { Zone } from "@/types/api";
-import { HiPencil, HiTrash } from "react-icons/hi2";
-import { MdDragIndicator } from "react-icons/md";
-import { FiTarget } from "react-icons/fi";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Castle,
+  Target,
+  Edit,
+  Trash2,
+  GripVertical,
+  Calendar,
+} from "lucide-react";
 
 interface ZoneCardProps {
   zone: Zone;
@@ -24,68 +32,86 @@ export function ZoneCard({
   dragHandleProps,
 }: ZoneCardProps) {
   return (
-    <div className="relative group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow p-4 sm:p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-2 sm:gap-3 flex-1">
-          {isDraggable && (
-            <div
-              className="cursor-grab active:cursor-grabbing opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-              {...dragHandleProps}
-            >
-              <MdDragIndicator className="h-5 w-5 text-gray-400" />
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs sm:text-sm font-semibold flex-shrink-0">
-                {zone.order}
-              </span>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
-                {zone.name}
-              </h3>
-            </div>
-            {zone.description && (
-              <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
-                {zone.description}
-              </p>
+    <Card className="group border-2 hover:border-purple-500/50 transition-all hover:shadow-lg">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-2 sm:gap-3 flex-1">
+            {isDraggable && (
+              <div
+                className="cursor-grab active:cursor-grabbing opacity-50 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                {...dragHandleProps}
+              >
+                <GripVertical className="h-5 w-5 text-muted-foreground" />
+              </div>
             )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <Castle className="h-5 w-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                <Badge
+                  variant="secondary"
+                  className="bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 flex-shrink-0"
+                >
+                  Zone {zone.order}
+                </Badge>
+                <h3 className="text-lg sm:text-xl font-semibold break-words flex-1">
+                  {zone.name}
+                </h3>
+              </div>
+              {zone.description && (
+                <p className="text-muted-foreground text-sm line-clamp-2 mt-2">
+                  {zone.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-1 sm:gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity ml-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 sm:h-9 sm:w-9"
+              asChild
+            >
+              <Link
+                href={`/admin/quests?projectId=${projectId}&zoneId=${zone.id}`}
+                aria-label="Gérer les quêtes de la zone"
+              >
+                <Target className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onEdit(zone)}
+              className="h-8 w-8 sm:h-9 sm:w-9"
+              aria-label="Éditer la zone"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onDelete(zone.id)}
+              className="h-8 w-8 sm:h-9 sm:w-9 text-destructive hover:text-destructive"
+              aria-label="Supprimer la zone"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-          <Link
-            href={`/admin/quests?projectId=${projectId}&zoneId=${zone.id}`}
-            className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 dark:text-gray-400 dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-md transition-colors"
-            aria-label="Gérer les quêtes de la zone"
-          >
-            <FiTarget className="h-5 w-5" />
-          </Link>
-          <button
-            onClick={() => onEdit(zone)}
-            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 rounded-md transition-colors"
-            aria-label="Éditer la zone"
-          >
-            <HiPencil className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => onDelete(zone.id)}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors"
-            aria-label="Supprimer la zone"
-          >
-            <HiTrash className="h-5 w-5" />
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-muted-foreground pt-4 border-t gap-2 sm:gap-0">
+          <span className="flex items-center gap-1">
+            <Target className="h-3 w-3" />
+            {zone.quests?.length || 0} quête
+            {(zone.quests?.length || 0) !== 1 ? "s" : ""}
+          </span>
+          <span className="flex items-center gap-1 text-xs">
+            <Calendar className="h-3 w-3" />
+            {new Date(zone.createdAt).toLocaleDateString("fr-FR")}
+          </span>
         </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-700 gap-2 sm:gap-0">
-        <span>
-          {zone.quests?.length || 0} quête
-          {(zone.quests?.length || 0) !== 1 ? "s" : ""}
-        </span>
-        <span className="text-xs">
-          Créée le {new Date(zone.createdAt).toLocaleDateString("fr-FR")}
-        </span>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

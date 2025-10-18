@@ -9,7 +9,17 @@ import { Zone } from "@/types/api";
 import { CreateZoneDto, UpdateZoneDto } from "@/types/forms";
 import { ZoneCard } from "@/components/admin/zones/ZoneCard";
 import { ZoneForm } from "@/components/admin/zones/ZoneForm";
-import { HiPlus, HiFilter } from "react-icons/hi";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Castle, Plus, Loader2, AlertTriangle } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -84,7 +94,7 @@ export default function AdminZonesPage() {
         setShowForm(false);
         refetch();
       },
-    }
+    },
   );
 
   const updateMutation = useMutation(
@@ -96,7 +106,7 @@ export default function AdminZonesPage() {
         setEditingZone(undefined);
         refetch();
       },
-    }
+    },
   );
 
   const deleteMutation = useMutation(
@@ -105,7 +115,7 @@ export default function AdminZonesPage() {
       onSuccess: () => {
         refetch();
       },
-    }
+    },
   );
 
   // Synchroniser localZones avec zones
@@ -127,7 +137,7 @@ export default function AdminZonesPage() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -212,77 +222,91 @@ export default function AdminZonesPage() {
     createMutation.loading || updateMutation.loading || deleteMutation.loading;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Gestion des Zones
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Organisez vos projets par zones pour une meilleure structure
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <Castle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                Gestion des Zones
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Organisez vos projets par zones pour une meilleure structure
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Filters & Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            {/* Project Filter */}
-            <div className="flex items-center gap-3 flex-1">
-              <HiFilter className="h-5 w-5 text-gray-400" />
-              <select
-                value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={projectsLoading}
-              >
-                <option value="">Sélectionnez un projet</option>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              {/* Project Filter */}
+              <div className="flex-1 w-full sm:max-w-md space-y-2">
+                <Label htmlFor="project-select">Projet</Label>
+                <Select
+                  value={selectedProjectId}
+                  onValueChange={setSelectedProjectId}
+                  disabled={projectsLoading}
+                >
+                  <SelectTrigger id="project-select">
+                    <SelectValue placeholder="Sélectionnez un projet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Create Button */}
-            <button
-              onClick={handleCreate}
-              disabled={!selectedProjectId}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <HiPlus className="h-5 w-5" />
-              Nouvelle zone
-            </button>
-          </div>
-        </div>
+              {/* Create Button */}
+              <Button
+                onClick={handleCreate}
+                disabled={!selectedProjectId}
+                className="w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvelle zone
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Zones List */}
         {zonesLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Chargement des zones...
-            </p>
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-purple-600 mb-4" />
+            <p className="text-muted-foreground">Chargement des zones...</p>
           </div>
         ) : !selectedProjectId ? (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
-              Sélectionnez un projet pour voir ses zones
-            </p>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez un projet pour voir ses zones
+              </p>
+            </CardContent>
+          </Card>
         ) : localZones.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Aucune zone dans ce projet
-            </p>
-            <button
-              onClick={handleCreate}
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              Créer la première zone
-            </button>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Castle className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Aucune zone dans ce projet
+              </p>
+              <Button onClick={handleCreate} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Créer la première zone
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <DndContext
             sensors={sensors}

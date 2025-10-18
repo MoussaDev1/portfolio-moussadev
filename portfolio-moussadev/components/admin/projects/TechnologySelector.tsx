@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { apiClient } from "@/lib/api";
 import { Technology, TechCategory, TechStatus } from "@/types/technology";
-import { FiX, FiPlus, FiCheck } from "react-icons/fi";
+import { X, Plus, Check } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
 
 interface TechnologySelectorProps {
@@ -118,7 +118,7 @@ export default function TechnologySelector({
                 onClick={() => handleRemoveTechnology(tech.id)}
                 className="hover:bg-blue-200 rounded-full p-0.5"
               >
-                <FiX className="w-3 h-3" />
+                <X className="w-3 h-3" />
               </button>
             </div>
           ))}
@@ -158,7 +158,7 @@ export default function TechnologySelector({
                 }}
                 className="w-full px-4 py-3 text-left hover:bg-muted flex items-center gap-2 text-blue-600 border-b border-border"
               >
-                <FiPlus className="w-4 h-4" />
+                <Plus className="w-4 h-4" />
                 <span>
                   Créer &quot;{searchTerm.trim()}&quot; comme nouvelle
                   technologie
@@ -235,7 +235,7 @@ export default function TechnologySelector({
                       disabled={loading}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center justify-center gap-2"
                     >
-                      <FiCheck className="w-4 h-4" />
+                      <Check className="w-4 h-4" />
                       Créer et ajouter
                     </button>
                     <button

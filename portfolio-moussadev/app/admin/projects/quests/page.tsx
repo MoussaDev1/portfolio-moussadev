@@ -11,7 +11,7 @@ import { Quest, QuestStatus } from "@/types/api";
 import { CreateZoneQuestDto, UpdateZoneQuestDto } from "@/types/forms";
 import { QuestsList } from "@/components/admin/quests/QuestsList";
 import { QuestForm } from "@/components/admin/quests/QuestForm";
-import { HiFilter, HiChartBar } from "react-icons/hi";
+import { Filter, BarChart } from "lucide-react";
 
 export default function AdminQuestsPage() {
   const searchParams = useSearchParams();
@@ -25,8 +25,9 @@ export default function AdminQuestsPage() {
   const { zones, loading: zonesLoading } = useZones(selectedProjectId || "");
 
   // Récupérer toutes les quêtes du projet pour les stats
-  const { quests: allProjectQuests, loading: allQuestsLoading } =
-    useProjectQuests(selectedProjectId || "");
+  const { quests: allProjectQuests } = useProjectQuests(
+    selectedProjectId || ""
+  );
 
   // Récupérer les quests de la zone sélectionnée
   const {
@@ -213,7 +214,7 @@ export default function AdminQuestsPage() {
             {/* Project Filter */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <HiFilter className="inline h-4 w-4 mr-1" />
+                <Filter className="inline h-4 w-4 mr-1" />
                 Projet
               </label>
               <select
@@ -234,7 +235,7 @@ export default function AdminQuestsPage() {
             {/* Zone Filter */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <HiChartBar className="inline h-4 w-4 mr-1" />
+                <BarChart className="inline h-4 w-4 mr-1" />
                 Zone
               </label>
               <select

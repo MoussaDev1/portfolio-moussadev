@@ -9,7 +9,17 @@ import { Floor } from "@/types/api";
 import { CreateFloorDto, UpdateFloorDto } from "@/types/forms";
 import { FloorCard } from "@/components/admin/floors/FloorCard";
 import { FloorForm } from "@/components/admin/floors/FloorForm";
-import { HiPlus, HiFilter } from "react-icons/hi";
+import { Building2, Plus, Loader2, AlertTriangle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DndContext,
   closestCenter,
@@ -84,7 +94,7 @@ export default function AdminFloorsPage() {
         setShowForm(false);
         refetch();
       },
-    }
+    },
   );
 
   const updateMutation = useMutation(
@@ -96,7 +106,7 @@ export default function AdminFloorsPage() {
         setEditingFloor(undefined);
         refetch();
       },
-    }
+    },
   );
 
   const deleteMutation = useMutation(
@@ -105,7 +115,7 @@ export default function AdminFloorsPage() {
       onSuccess: () => {
         refetch();
       },
-    }
+    },
   );
 
   // Synchroniser localFloors avec floors
@@ -127,7 +137,7 @@ export default function AdminFloorsPage() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -214,160 +224,190 @@ export default function AdminFloorsPage() {
     total: localFloors.length,
     totalQuests: localFloors.reduce(
       (acc, f) => acc + (f.floorQuests?.length || 0),
-      0
+      0,
     ),
   };
 
   if (projectsLoading) {
     return (
-      <div className="p-6 sm:p-8">
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-purple-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Chargement des projets...
-          </p>
+      <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-10 w-10 animate-spin text-orange-600 mb-4" />
+          <p className="text-muted-foreground">Chargement des projets...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 sm:p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          🏢 Gestion des Floors
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Organisez vos projets Floor System en étages
-        </p>
-      </div>
-
-      {/* Project Selector & Actions */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <label
-            htmlFor="project-select"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            <HiFilter className="inline h-4 w-4 mr-1" />
-            Sélectionner un projet
-          </label>
-          <select
-            id="project-select"
-            value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">-- Choisir un projet --</option>
-            {projects?.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.title} ({project.type})
-              </option>
-            ))}
-          </select>
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-orange-500/10 rounded-lg">
+              <Building2 className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                Gestion des Floors
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Organisez vos projets Floor System en étages
+              </p>
+            </div>
+          </div>
         </div>
 
-        {selectedProjectId && (
-          <button
-            onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+        {/* Project Selector & Actions */}
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              {/* Project Filter */}
+              <div className="flex-1 w-full sm:max-w-md space-y-2">
+                <Label htmlFor="project-select">Projet</Label>
+                <Select
+                  value={selectedProjectId}
+                  onValueChange={setSelectedProjectId}
+                  disabled={projectsLoading}
+                >
+                  <SelectTrigger id="project-select">
+                    <SelectValue placeholder="Sélectionnez un projet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects?.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.title} ({project.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Create Button */}
+              {selectedProjectId && (
+                <Button
+                  onClick={handleCreate}
+                  className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau Floor
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Statistics */}
+        {selectedProjectId && localFloors.length > 0 && (
+          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500/10 rounded-lg">
+                    <Building2 className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Floors
+                    </p>
+                    <p className="text-2xl font-bold">{floorStats.total}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500/10 rounded-lg">
+                    <Building2 className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Floor Quests
+                    </p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {floorStats.totalQuests}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Content */}
+        {!selectedProjectId ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Sélectionnez un projet pour gérer ses floors
+              </p>
+            </CardContent>
+          </Card>
+        ) : floorsLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-orange-600 mb-4" />
+            <p className="text-muted-foreground">Chargement des floors...</p>
+          </div>
+        ) : localFloors.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Building2 className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <p className="text-lg text-muted-foreground mb-4">
+                Aucun floor dans ce projet
+              </p>
+              <Button
+                onClick={handleCreate}
+                variant="outline"
+                className="border-orange-500 text-orange-600 hover:bg-orange-50"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Créer le premier floor
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <HiPlus className="h-5 w-5" />
-            Nouveau Floor
-          </button>
+            <SortableContext
+              items={localFloors.map((f) => f.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4">
+                {localFloors.map((floor) => (
+                  <SortableFloorCard
+                    key={floor.id}
+                    floor={floor}
+                    projectId={selectedProjectId}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {/* Form Modal */}
+        {showForm && (
+          <FloorForm
+            floor={editingFloor}
+            projectId={selectedProjectId}
+            existingFloors={localFloors}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingFloor(undefined);
+            }}
+            isLoading={createMutation.loading || updateMutation.loading}
+          />
         )}
       </div>
-
-      {/* Statistics */}
-      {selectedProjectId && localFloors.length > 0 && (
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Total Floors
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {floorStats.total}
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Floor Quests
-            </p>
-            <p className="text-2xl font-bold text-purple-600">
-              {floorStats.totalQuests}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Content */}
-      {!selectedProjectId ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            Sélectionnez un projet pour gérer ses floors
-          </p>
-        </div>
-      ) : floorsLoading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-purple-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Chargement des floors...
-          </p>
-        </div>
-      ) : localFloors.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-6xl mb-4">🏢</div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
-            Aucun floor dans ce projet
-          </p>
-          <button
-            onClick={handleCreate}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-          >
-            <HiPlus className="h-5 w-5" />
-            Créer le premier floor
-          </button>
-        </div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={localFloors.map((f) => f.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="space-y-4">
-              {localFloors.map((floor) => (
-                <SortableFloorCard
-                  key={floor.id}
-                  floor={floor}
-                  projectId={selectedProjectId}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
-
-      {/* Form Modal */}
-      {showForm && (
-        <FloorForm
-          floor={editingFloor}
-          projectId={selectedProjectId}
-          existingFloors={localFloors}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingFloor(undefined);
-          }}
-          isLoading={createMutation.loading || updateMutation.loading}
-        />
-      )}
     </div>
   );
 }

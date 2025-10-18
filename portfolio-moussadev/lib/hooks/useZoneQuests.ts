@@ -23,7 +23,7 @@ export function useZoneQuests(projectId: string, zoneId: string) {
       setError(
         err instanceof Error
           ? err.message
-          : "Erreur lors du chargement des quests"
+          : "Erreur lors du chargement des quests",
       );
       console.error("Erreur useZoneQuests:", err);
     } finally {
@@ -74,7 +74,7 @@ export function useProjectQuests(projectId: string) {
         } catch (zoneError) {
           console.warn(
             `Erreur lors du chargement des quêtes de la zone ${zone.name}:`,
-            zoneError
+            zoneError,
           );
         }
       }
@@ -84,7 +84,7 @@ export function useProjectQuests(projectId: string) {
       setError(
         err instanceof Error
           ? err.message
-          : "Erreur lors du chargement des quests du projet"
+          : "Erreur lors du chargement des quests du projet",
       );
       console.error("Erreur useProjectQuests:", err);
     } finally {
@@ -111,7 +111,7 @@ export function useProjectQuests(projectId: string) {
 export function useZoneQuestById(
   projectId: string,
   zoneId: string,
-  questId: string
+  questId: string,
 ) {
   const [quest, setQuest] = useState<Quest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -133,7 +133,7 @@ export function useZoneQuestById(
       setError(
         err instanceof Error
           ? err.message
-          : "Erreur lors du chargement de la quest"
+          : "Erreur lors du chargement de la quest",
       );
       console.error("Erreur useZoneQuestById:", err);
     } finally {
