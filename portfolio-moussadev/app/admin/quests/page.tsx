@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useZones } from "@/lib/hooks/useZones";
@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function AdminQuestsPage() {
+function AdminQuestsPageContent() {
   const searchParams = useSearchParams();
   const { projects, loading: projectsLoading } = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
@@ -406,5 +406,22 @@ export default function AdminQuestsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminQuestsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <AdminQuestsPageContent />
+    </Suspense>
   );
 }

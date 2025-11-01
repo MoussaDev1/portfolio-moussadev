@@ -1,18 +1,24 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined in environment variables");
-}
-
-// Convertir le secret en Uint8Array pour jose
-const secret = new TextEncoder().encode(JWT_SECRET);
-
 export interface JWTPayload {
   admin: boolean;
   iat: number; // Issued at
   exp: number; // Expiration
+}
+
+/**
+ * Récupère et valide le secret JWT
+ * @throws Error si JWT_SECRET n'est pas défini
+ */
+function getJWTSecret(): Uint8Array {
+  const JWT_SECRET = process.env.JWT_SECRET;
+  
+  if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
+  
+  // Convertir le secret en Uint8Array pour jose
+  return new TextEncoder().encode(JWT_SECRET);
 }
 
 /**
@@ -21,6 +27,7 @@ export interface JWTPayload {
  * @returns Token JWT signé
  */
 export async function signToken(expiresInDays: number = 7): Promise<string> {
+  const secret = getJWTSecret();
   const iat = Math.floor(Date.now() / 1000); // Timestamp actuel en secondes
   const exp = iat + 60 * 60 * 24 * expiresInDays; // Expiration
 
@@ -38,6 +45,7 @@ export async function signToken(expiresInDays: number = 7): Promise<string> {
  */
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
+    const secret = getJWTSecret();
     const { payload } = await jwtVerify(token, secret);
 
     // Vérifier que c'est un token admin
