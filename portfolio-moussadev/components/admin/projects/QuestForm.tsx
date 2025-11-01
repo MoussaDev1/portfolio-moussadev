@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api";
 import { Priority, CreateQuestDto } from "@/types/api";
 
 interface QuestFormProps {
+  projectId: string;
   zoneId?: string;
   floorId?: string;
   onQuestCreated: () => void;
@@ -13,6 +14,7 @@ interface QuestFormProps {
 }
 
 export default function QuestForm({
+  projectId,
   zoneId,
   floorId,
   onQuestCreated,
@@ -21,9 +23,10 @@ export default function QuestForm({
   const [formData, setFormData] = useState<CreateQuestDto>({
     title: "",
     userStory: "",
-    definitionOfDone: "",
-    manualTests: "",
+    definitionOfDone: [],
+    manualTests: [],
     techDebt: "",
+    order: 1,
     priority: Priority.MEDIUM,
     estimatedHours: 1,
   });
@@ -34,9 +37,9 @@ export default function QuestForm({
     error,
   } = useMutation(async (data: CreateQuestDto) => {
     if (zoneId) {
-      return await apiClient.createQuest(zoneId, data);
+      return await apiClient.createZoneQuest(projectId, zoneId, data);
     } else if (floorId) {
-      return await apiClient.createFloorQuest(floorId, data);
+      return await apiClient.createFloorQuest(projectId, floorId, data);
     }
     throw new Error("Zone ID ou Floor ID requis");
   });
@@ -51,13 +54,12 @@ export default function QuestForm({
       setFormData({
         title: "",
         userStory: "",
-        acceptanceCriteria: "",
-        definitionOfDone: "",
-        manualTests: "",
-        technicalDebt: "",
-        priority: Priority.MEDIUM,
-        estimatedPomodoros: 1,
+        definitionOfDone: [],
+        manualTests: [],
+        techDebt: "",
         order: 1,
+        priority: Priority.MEDIUM,
+        estimatedHours: 1,
       });
     } catch (err) {
       console.error("Error creating quest:", err);
@@ -70,10 +72,20 @@ export default function QuestForm({
     >
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "number" ? parseInt(value) || 0 : value,
-    }));
+
+    // Pour les champs qui doivent être des tableaux (séparés par des retours à la ligne)
+    if (name === "definitionOfDone" || name === "manualTests") {
+      const arrayValue = value.split("\n").filter((line) => line.trim() !== "");
+      setFormData((prev) => ({
+        ...prev,
+        [name]: arrayValue,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "number" ? parseInt(value) || 0 : value,
+      }));
+    }
   };
 
   const getPriorityColor = (priority: Priority) => {
@@ -205,29 +217,6 @@ export default function QuestForm({
           </p>
         </div>
 
-        {/* Acceptance Criteria */}
-        <div>
-          <label
-            htmlFor="acceptanceCriteria"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            ✅ Critères d&apos;Acceptation
-          </label>
-          <textarea
-            id="acceptanceCriteria"
-            name="acceptanceCriteria"
-            value={formData.acceptanceCriteria}
-            onChange={handleChange}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="- Étant donné que..., quand..., alors...&#10;- L'utilisateur peut...&#10;- Le système doit..."
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Utilisez des puces (-) pour lister chaque critère. Format Gherkin
-            recommandé.
-          </p>
-        </div>
-
         {/* Definition of Done */}
         <div>
           <label
@@ -239,12 +228,12 @@ export default function QuestForm({
           <textarea
             id="definitionOfDone"
             name="definitionOfDone"
-            value={formData.definitionOfDone}
+            value={formData.definitionOfDone.join("\n")}
             onChange={handleChange}
             required
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="- Code écrit et testé&#10;- Interface responsive&#10;- Documentation mise à jour&#10;- Pas de bug critique"
+            placeholder="Code écrit et testé&#10;Interface responsive&#10;Documentation mise à jour&#10;Pas de bug critique"
           />
           <p className="mt-1 text-xs text-gray-500">
             Critères que la quête doit respecter pour être considérée comme
@@ -263,11 +252,11 @@ export default function QuestForm({
           <textarea
             id="manualTests"
             name="manualTests"
-            value={formData.manualTests}
+            value={formData.manualTests.join("\n")}
             onChange={handleChange}
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="1. Ouvrir la page de connexion&#10;2. Entrer des identifiants valides&#10;3. Cliquer sur se connecter&#10;4. Vérifier la redirection"
+            placeholder="Ouvrir la page de connexion&#10;Entrer des identifiants valides&#10;Cliquer sur se connecter&#10;Vérifier la redirection"
           />
           <p className="mt-1 text-xs text-gray-500">
             Étapes de test à suivre manuellement pour valider la fonctionnalité.
@@ -277,15 +266,15 @@ export default function QuestForm({
         {/* Technical Debt */}
         <div>
           <label
-            htmlFor="technicalDebt"
+            htmlFor="techDebt"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             ⚠️ Dette Technique
           </label>
           <textarea
-            id="technicalDebt"
-            name="technicalDebt"
-            value={formData.technicalDebt}
+            id="techDebt"
+            name="techDebt"
+            value={formData.techDebt}
             onChange={handleChange}
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -298,26 +287,26 @@ export default function QuestForm({
 
         {/* Footer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Pomodoros Estimés */}
+          {/* Heures Estimées */}
           <div>
             <label
-              htmlFor="estimatedPomodoros"
+              htmlFor="estimatedHours"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              🍅 Pomodoros Estimés
+              ⏱️ Heures Estimées
             </label>
             <input
               type="number"
-              id="estimatedPomodoros"
-              name="estimatedPomodoros"
-              value={formData.estimatedPomodoros}
+              id="estimatedHours"
+              name="estimatedHours"
+              value={formData.estimatedHours}
               onChange={handleChange}
               min="1"
-              max="20"
+              max="100"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Estimation en sessions de 25-50 minutes
+              Estimation du temps de développement en heures
             </p>
           </div>
 

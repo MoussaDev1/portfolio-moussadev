@@ -306,6 +306,7 @@ export default function ProjectDetails({
                     {showQuestForm?.type === "zone" &&
                     showQuestForm?.id === zone.id ? (
                       <QuestForm
+                        projectId={project.id}
                         zoneId={zone.id}
                         onQuestCreated={() => {
                           setShowQuestForm(null);
@@ -405,6 +406,7 @@ export default function ProjectDetails({
                     {showQuestForm?.type === "floor" &&
                     showQuestForm?.id === floor.id ? (
                       <QuestForm
+                        projectId={project.id}
                         floorId={floor.id}
                         onQuestCreated={() => {
                           setShowQuestForm(null);

@@ -216,11 +216,12 @@ export interface CreateFloorDto {
 export interface CreateQuestDto {
   title: string;
   userStory: string;
-  definitionOfDone?: string;
-  manualTests?: string;
-  techDebt?: string;
+  definitionOfDone: string[];
+  manualTests: string[];
+  techDebt: string;
   status?: QuestStatus;
   priority?: Priority;
+  order: number;
   estimatedHours?: number;
 }
 
